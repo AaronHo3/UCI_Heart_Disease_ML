@@ -1,8 +1,8 @@
-# Heart Disease Classification (Logistic Regression)
+# Heart Disease Classification (Logistic Regression + Random Forest)
 
-A reproducible machine learning pipeline for predicting the presence of heart disease from clinical features using logistic regression.
+A reproducible machine learning pipeline for predicting heart disease from clinical features using both logistic regression and random forest models.
 
-This project demonstrates end-to-end ML workflow including preprocessing, cross-validation, evaluation, model interpretability, and reproducibility practices.
+This project demonstrates an end-to-end ML workflow including preprocessing, cross-validation, model comparison, evaluation, interpretability, and reproducibility practices.
 
 ---
 
@@ -10,12 +10,12 @@ This project demonstrates end-to-end ML workflow including preprocessing, cross-
 
 The goal is to predict whether a patient has heart disease (`num > 0`) using demographic, clinical, and diagnostic features from the UCI Heart Disease dataset.
 
-The model is a scikit-learn pipeline combining:
+Each model uses a scikit-learn pipeline combining:
 
 - imputation (missing values)
 - scaling (numeric features)
 - one-hot encoding (categorical features)
-- logistic regression classifier
+- logistic regression or random forest classifier
 
 ---
 
@@ -34,15 +34,18 @@ The dataset is downloaded programmatically using `kagglehub` and is not stored i
 
 ## Results
 
-After removing dataset-origin features to avoid cohort bias:
+After removing dataset-origin features to avoid cohort bias, both models perform strongly:
 
-- **Test ROC-AUC:** 0.897  
-- **Accuracy:** 0.821  
-- **Precision:** 0.835  
-- **Recall:** 0.843  
-- **5-fold CV ROC-AUC:** 0.882 ± 0.020  
+- **Logistic Regression**
+  - Test ROC-AUC: 0.896
+  - Accuracy: 0.826
+  - 5-fold CV ROC-AUC: 0.882 +/- 0.020
+- **Random Forest**
+  - Test ROC-AUC: 0.914
+  - Accuracy: 0.826
+  - 5-fold CV ROC-AUC: 0.871 +/- 0.023
 
-The model retains strong performance using only physiological and clinical variables.
+The random forest currently gives the best ROC-AUC on the held-out test set.
 
 ### ROC Curve
 ![ROC](reports/figures/roc_curve.png)
@@ -70,10 +73,23 @@ These align with established cardiology risk factors.
 
 The project is fully reproducible using a fixed random seed, stratified splits, and a scikit-learn preprocessing pipeline.
 
-### Quick start (recommended)
+### Quick start
 
 ```bash
 make setup
 make download
-make train
+make train       # trains logistic regression -> models/logreg.joblib
+make train_rf    # trains random forest -> models/rf.joblib
 make eval
+make importance  # logistic regression feature importance
+make compare     # writes reports/model_comparison.csv
+```
+
+### Main outputs
+
+- `models/logreg.joblib`
+- `models/rf.joblib`
+- `reports/model_comparison.csv`
+- `reports/figures/roc_curve.png`
+- `reports/figures/confusion_matrix.png`
+- `reports/figures/feature_importance.png`

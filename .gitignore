@@ -1,0 +1,23 @@
+# env
+.venv/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+dist/
+build/
+*.egg
+
+# jupter
+.ipynb_checkpoints/
+
+# mac
+.DS_Store
+
+# data + artifactions
+data/raw/
+models/

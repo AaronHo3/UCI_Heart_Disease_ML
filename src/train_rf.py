@@ -1,19 +1,18 @@
-import os
+import os 
 import pandas as pd
 from joblib import dump
-import numpy as np
 
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, accuracy_score
 
 RANDOM_SEED = 100
 DATA_PATH = "data/raw/heart_disease_uci.csv"
-MODEL_PATH = "models/logreg.joblib"
+MODEL_PATH = "models/rf.joblib"
 
 def main():
     if not os.path.exists(DATA_PATH):
@@ -38,7 +37,6 @@ def main():
     num_cols = [c for c in X.columns if c not in cat_cols]
 
     # Preprocessing pipelines
-    # Median imputation for robustness to outliers, standard scaling for numeric features
     numeric_pipe = Pipeline(steps =[
         ("imputer", SimpleImputer(strategy="median")),
         ("scaler", StandardScaler())
@@ -56,9 +54,15 @@ def main():
       remainder="drop"
     )
 
+    # Random Forest model
+
     model = Pipeline(steps=[
         ("prep", preprocessor),
-        ("clf", LogisticRegression(max_iter=3000, class_weight="balanced")),
+        ("clf", RandomForestClassifier(n_estimators=500, 
+        random_state=RANDOM_SEED,
+        class_weight="balanced",
+        n_jobs=1
+        )),
     ])
 
     # Train/test split
@@ -66,14 +70,13 @@ def main():
         X, y, test_size=0.2, random_state=RANDOM_SEED, stratify=y
     )
 
-    # Cross validation on training set to check for overfitting
+    # Cross-validation on training set
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-
-    cv_results = cross_validate(model, X_train, y_train, cv=cv, scoring="roc_auc", n_jobs=-1, return_train_score=False)
+    cv_results = cross_validate(model, X_train, y_train, cv=cv, scoring="roc_auc", n_jobs=1, return_train_score=False)
 
     auc_scores = cv_results["test_score"]
-    print(f"5-fold CV ROC-AUC: {auc_scores.mean():.4f} +/- {auc_scores.std():.4f}")
-    print("Fold AUCs:", [f"{s:.4f}" for s in auc_scores])
+    print(f"RF 5-fold CV ROC-AUC: {auc_scores.mean():.4f} +/- {auc_scores.std():.4f}")
+    print(f"RF Fold AUCs:", [f"{s:.4f}" for s in auc_scores])
 
     # Fit final model on full training set and evaluate on test set
     model.fit(X_train, y_train)
@@ -89,9 +92,10 @@ def main():
 
     print("Categorical columns:", cat_cols)
     print("Numeric columns:", num_cols)
-    print(f"Saved model -> {MODEL_PATH}")
+    print(f"Model saved -> {MODEL_PATH}")
     print(f"Test ROC-AUC : {auc:.3f}")
     print(f"Test Accuracy: {acc:.3f}")
 
 if __name__ == "__main__":
     main()
+    

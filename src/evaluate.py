@@ -37,7 +37,7 @@ def main():
     # Features
     X = df.drop(columns = ['num', 'id'], errors='ignore') # Drop label and id if exists
 
-    # Use the same split settings as train.py so test set is consistent
+    # Use the same split settings as train_logreg.py so test set is consistent
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=RANDOM_SEED, stratify=y
     )
