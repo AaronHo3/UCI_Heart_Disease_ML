@@ -47,6 +47,13 @@ After removing dataset-origin features to avoid cohort bias, both models perform
 
 The random forest currently gives the best ROC-AUC on the held-out test set.
 
+### Model Comparison Table
+
+| Model | ROC-AUC | Accuracy | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| Random Forest | 0.9143 | 0.8261 | 0.8302 | 0.8627 | 0.8462 |
+| Logistic Regression | 0.8965 | 0.8261 | 0.8302 | 0.8627 | 0.8462 |
+
 ### ROC Curve
 ![ROC](reports/figures/roc_curve.png)
 
