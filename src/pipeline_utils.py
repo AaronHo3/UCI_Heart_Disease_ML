@@ -6,6 +6,7 @@ import pandas as pd
 from joblib import dump, load
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -69,7 +70,7 @@ def split_train_validation(
     )
 
 
-def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
+def build_preprocessor(X: pd.DataFrame, sparse_output: bool = True) -> ColumnTransformer:
     cat_cols = X.select_dtypes(include=["object", "string", "category"]).columns.tolist()
     num_cols = [c for c in X.columns if c not in cat_cols]
 
@@ -83,7 +84,7 @@ def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
     categorical_pipe = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("encoder", OneHotEncoder(handle_unknown="ignore")),
+            ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=sparse_output)),
         ]
     )
 
@@ -116,6 +117,20 @@ def build_rf_pipeline(X: pd.DataFrame, random_seed: int = RANDOM_SEED) -> Pipeli
                     random_state=random_seed,
                     class_weight="balanced",
                     n_jobs=-1,
+                ),
+            ),
+        ]
+    )
+
+
+def build_hgb_pipeline(X: pd.DataFrame, random_seed: int = RANDOM_SEED) -> Pipeline:
+    return Pipeline(
+        steps=[
+            ("prep", build_preprocessor(X, sparse_output=False)),
+            (
+                "clf",
+                HistGradientBoostingClassifier(
+                    random_state=random_seed,
                 ),
             ),
         ]

@@ -17,5 +17,8 @@ importance:
 train_rf:
 	. .venv/bin/activate && python src/train_rf.py
 
+train_gb:
+	. .venv/bin/activate && python src/train_gb.py
+
 compare:
 	. .venv/bin/activate && python src/compare_models.py

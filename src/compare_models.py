@@ -4,6 +4,7 @@ import pandas as pd
 
 from pipeline_utils import (
     RANDOM_SEED,
+    build_hgb_pipeline,
     build_logreg_pipeline,
     build_rf_pipeline,
     evaluate_at_threshold,
@@ -81,6 +82,7 @@ def main():
 
     logreg_model = build_logreg_pipeline(X, random_seed=RANDOM_SEED)
     rf_model = build_rf_pipeline(X, random_seed=RANDOM_SEED)
+    gb_model = build_hgb_pipeline(X, random_seed=RANDOM_SEED)
 
     logreg_params = {
         "clf__C": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0],
@@ -94,6 +96,13 @@ def main():
         "clf__min_samples_leaf": [1, 2, 4],
         "clf__max_features": ["sqrt", "log2", None],
         "clf__class_weight": [None, "balanced", "balanced_subsample"],
+    }
+    gb_params = {
+        "clf__learning_rate": [0.01, 0.03, 0.05, 0.1],
+        "clf__max_iter": [200, 400, 800],
+        "clf__max_leaf_nodes": [15, 31, 63],
+        "clf__min_samples_leaf": [10, 20, 40],
+        "clf__l2_regularization": [0.0, 0.1, 1.0, 5.0],
     }
 
     results = [
@@ -117,6 +126,17 @@ def main():
             X_test=X_test,
             y_test=y_test,
             n_iter=30,
+            n_jobs=1,
+        ),
+        evaluate_model_with_tuning(
+            name="Gradient Boosting",
+            base_model=gb_model,
+            param_grid=gb_params,
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_test,
+            y_test=y_test,
+            n_iter=25,
             n_jobs=1,
         ),
     ]

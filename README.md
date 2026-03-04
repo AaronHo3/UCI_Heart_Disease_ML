@@ -1,6 +1,6 @@
-# Heart Disease Classification (Logistic Regression + Random Forest)
+# Heart Disease Classification (Logistic Regression + Random Forest + Gradient Boosting)
 
-A reproducible machine learning pipeline for predicting heart disease from clinical features using both logistic regression and random forest models.
+A reproducible machine learning pipeline for predicting heart disease from clinical features using logistic regression, random forest, and gradient boosting models.
 
 This project demonstrates an end-to-end ML workflow including preprocessing, cross-validation, model comparison, evaluation, interpretability, and reproducibility practices.
 
@@ -15,7 +15,7 @@ Each model uses a scikit-learn pipeline combining:
 - imputation (missing values)
 - scaling (numeric features)
 - one-hot encoding (categorical features)
-- logistic regression or random forest classifier
+- logistic regression, random forest, or gradient boosting classifier
 - hyperparameter tuning (CV search on ROC-AUC)
 - threshold tuning on a validation split (optimize F1 instead of fixed 0.5)
 
@@ -91,6 +91,7 @@ make setup
 make download
 make train       # trains logistic regression -> models/logreg.joblib
 make train_rf    # trains random forest -> models/rf.joblib
+make train_gb    # trains gradient boosting -> models/gb.joblib
 make eval
 make importance  # logistic regression feature importance
 make compare     # writes reports/model_comparison.csv
@@ -100,6 +101,7 @@ make compare     # writes reports/model_comparison.csv
 
 - `models/logreg.joblib`
 - `models/rf.joblib`
+- `models/gb.joblib`
 - `reports/model_comparison.csv`
 - `reports/figures/roc_curve.png`
 - `reports/figures/confusion_matrix.png`
