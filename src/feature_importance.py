@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from joblib import load
+
+from pipeline_utils import load_model_bundle
 
 MODEL_PATH = "models/logreg.joblib"
-DATA_PATH = "data/raw/heart_disease_uci.csv"
 
 def main():
-    model = load(MODEL_PATH)
+    model, _, _ = load_model_bundle(MODEL_PATH)
 
     # Split pipeline
     preprocessor = model.named_steps["prep"]
@@ -44,4 +44,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-

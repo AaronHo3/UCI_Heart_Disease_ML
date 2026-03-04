@@ -1,105 +1,125 @@
 import os
+
 import pandas as pd
 
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
+from pipeline_utils import (
+    RANDOM_SEED,
+    build_logreg_pipeline,
+    build_rf_pipeline,
+    evaluate_at_threshold,
+    load_dataset,
+    split_train_test,
+    split_train_validation,
+    tune_model,
+    tune_threshold,
+)
 
-RANDOM_SEED = 100
-DATA_PATH = "data/raw/heart_disease_uci.csv"
-DROP_COLS = ["num", "dataset"] # Drop original label column
 
-def build_preprocessor(X: pd.DataFrame) -> ColumnTransformer:
-    cat_cols = X.select_dtypes(include=['object', 'string', 'category']).columns.tolist()
-    num_cols = [c for c in X.columns if c not in cat_cols]
-
-    numeric_pipe = Pipeline(steps =[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler())
-    ])
-    
-    categorical_pipe = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("encoder", OneHotEncoder(handle_unknown="ignore"))
-    ])
-
-    preprocessor = ColumnTransformer(transformers=[
-        ("num", numeric_pipe, num_cols),
-        ("cat", categorical_pipe, cat_cols),
-      ],
-      remainder="drop"
+def evaluate_model_with_tuning(
+    name: str,
+    base_model,
+    param_grid: dict,
+    X_train,
+    y_train,
+    X_test,
+    y_test,
+    n_iter: int | None = None,
+    n_jobs: int = 1,
+) -> dict:
+    tuned_model, best_params, best_cv_auc = tune_model(
+        model=base_model,
+        X_train=X_train,
+        y_train=y_train,
+        param_grid=param_grid,
+        random_seed=RANDOM_SEED,
+        n_iter=n_iter,
+        n_jobs=n_jobs,
+        cv=5,
     )
-    return preprocessor
 
-def evaluate_model(name:str, model: Pipeline, X_train, y_train, X_test, y_test) -> dict:
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-    cv_res = cross_validate(model, X_train, y_train, cv=cv, scoring="roc_auc", n_jobs=1)
-    cv_auc_mean = cv_res["test_score"].mean()
-    cv_auc_std = cv_res["test_score"].std()
-    
-    model.fit(X_train, y_train)
-    proba = model.predict_proba(X_test)[:, 1]
-    preds = (proba >= 0.5).astype(int)
+    X_fit, X_val, y_fit, y_val = split_train_validation(
+        X_train,
+        y_train,
+        random_seed=RANDOM_SEED,
+        val_size=0.2,
+    )
+    tuned_model.fit(X_fit, y_fit)
+    val_proba = tuned_model.predict_proba(X_val)[:, 1]
+    threshold, val_f1 = tune_threshold(y_val, val_proba)
+
+    tuned_model.fit(X_train, y_train)
+    test_proba = tuned_model.predict_proba(X_test)[:, 1]
+    metrics = evaluate_at_threshold(y_test, test_proba, threshold=threshold)
 
     return {
         "model": name,
-        "auc": roc_auc_score(y_test, proba),
-        "accuracy": accuracy_score(y_test, preds),
-        "precision": precision_score(y_test, preds, zero_division=0),
-        "recall": recall_score(y_test, preds, zero_division=0),
-        "f1": f1_score(y_test, preds, zero_division=0)
+        "auc": metrics["auc"],
+        "accuracy": metrics["accuracy"],
+        "precision": metrics["precision"],
+        "recall": metrics["recall"],
+        "f1": metrics["f1"],
+        "threshold": threshold,
+        "cv_auc": best_cv_auc,
+        "val_f1": val_f1,
+        "best_params": str(best_params),
     }
-    
+
+
 def to_markdown_table(df: pd.DataFrame) -> str:
     df_fmt = df.copy()
-    for col in ["auc", "accuracy", "precision", "recall", "f1"]:
+    for col in ["auc", "accuracy", "precision", "recall", "f1", "threshold", "cv_auc", "val_f1"]:
         df_fmt[col] = df_fmt[col].map(lambda x: f"{x:.4f}")
     try:
         return df_fmt.to_markdown(index=False)
     except ImportError:
-        # Fall back when optional 'tabulate' dependency is unavailable.
         return df_fmt.to_string(index=False)
 
+
 def main():
-    if not os.path.exists(DATA_PATH):
-        raise FileNotFoundError(f"Data file not found at {DATA_PATH}.")
-    
-    df = pd.read_csv(DATA_PATH)
+    X, y = load_dataset()
+    X_train, X_test, y_train, y_test = split_train_test(X, y, random_seed=RANDOM_SEED)
 
-    if "num" not in df.columns:
-        raise ValueError("Expected 'num' column not found as label")
-    
-    y = (df['num'] > 0).astype(int) # Binary classification: 0 = no disease, 1 = disease
-    X = df.drop(columns=DROP_COLS + (["id"] if "id" in df.columns else []))
+    logreg_model = build_logreg_pipeline(X, random_seed=RANDOM_SEED)
+    rf_model = build_rf_pipeline(X, random_seed=RANDOM_SEED)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_SEED, stratify=y
-    )
+    logreg_params = {
+        "clf__C": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0],
+        "clf__class_weight": [None, "balanced"],
+        "clf__solver": ["lbfgs"],
+    }
+    rf_params = {
+        "clf__n_estimators": [300, 500, 800, 1200],
+        "clf__max_depth": [None, 5, 10, 20, 30],
+        "clf__min_samples_split": [2, 5, 10],
+        "clf__min_samples_leaf": [1, 2, 4],
+        "clf__max_features": ["sqrt", "log2", None],
+        "clf__class_weight": [None, "balanced", "balanced_subsample"],
+    }
 
-    preprocessor = build_preprocessor(X)
-
-    logreg_model = Pipeline(steps=[
-        ("prep", preprocessor),
-        ("clf", LogisticRegression(random_state=RANDOM_SEED, max_iter=1000))
-    ])
-
-    rf_model = Pipeline(steps=[
-        ("prep", preprocessor),
-        ("clf", RandomForestClassifier(n_estimators=500, 
-        random_state=RANDOM_SEED,
-        class_weight="balanced",
-        n_jobs=-1))
-    ])
-
-    results = []
-    for name, model in [("Logistic Regression", logreg_model), ("Random Forest", rf_model)]:
-        res = evaluate_model(name, model, X_train, y_train, X_test, y_test)
-        results.append(res)
+    results = [
+        evaluate_model_with_tuning(
+            name="Logistic Regression",
+            base_model=logreg_model,
+            param_grid=logreg_params,
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_test,
+            y_test=y_test,
+            n_iter=None,
+            n_jobs=1,
+        ),
+        evaluate_model_with_tuning(
+            name="Random Forest",
+            base_model=rf_model,
+            param_grid=rf_params,
+            X_train=X_train,
+            y_train=y_train,
+            X_test=X_test,
+            y_test=y_test,
+            n_iter=30,
+            n_jobs=1,
+        ),
+    ]
 
     results_df = pd.DataFrame(results).sort_values(by="auc", ascending=False)
 
@@ -108,9 +128,9 @@ def main():
 
     print("\nModel Comparison (saved to reports/model_comparison.csv)\n")
     print(results_df)
-
     print("\nMarkdown Table\n")
     print(to_markdown_table(results_df))
+
 
 if __name__ == "__main__":
     main()

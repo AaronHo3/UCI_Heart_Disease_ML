@@ -1,101 +1,75 @@
-import os 
-import pandas as pd
-from joblib import dump
+from pipeline_utils import (
+    RANDOM_SEED,
+    build_rf_pipeline,
+    evaluate_at_threshold,
+    load_dataset,
+    save_model_bundle,
+    split_train_test,
+    split_train_validation,
+    tune_model,
+    tune_threshold,
+)
 
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, accuracy_score
-
-RANDOM_SEED = 100
-DATA_PATH = "data/raw/heart_disease_uci.csv"
 MODEL_PATH = "models/rf.joblib"
 
 def main():
-    if not os.path.exists(DATA_PATH):
-        raise FileNotFoundError(f"Data file not found at {DATA_PATH}.")
-    
-    df = pd.read_csv(DATA_PATH)
+    X, y = load_dataset()
+    X_train, X_test, y_train, y_test = split_train_test(X, y, random_seed=RANDOM_SEED)
+    base_model = build_rf_pipeline(X, random_seed=RANDOM_SEED)
 
-    # Convert num label to binary
-    if "num" not in df.columns:
-        raise ValueError("Expected 'num' column not found as label")
-    y = (df['num'] > 0).astype(int) # Binary classification: 0 = no disease, 1 = disease
-
-    # Features
-    drop_cols = ["num", "dataset"] # Drop original label column
-    if "id" in df.columns:
-        drop_cols.append("id") # Drop id column if exists"
-
-    X = df.drop(columns=drop_cols)
-
-    # Identify numeric and categorical columns
-    cat_cols = X.select_dtypes(include=['object', 'string', 'category']).columns.tolist()
-    num_cols = [c for c in X.columns if c not in cat_cols]
-
-    # Preprocessing pipelines
-    numeric_pipe = Pipeline(steps =[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler())
-    ])
-    
-    categorical_pipe = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("encoder", OneHotEncoder(handle_unknown="ignore"))
-    ])
-
-    preprocessor = ColumnTransformer(transformers=[
-        ("num", numeric_pipe, num_cols),
-        ("cat", categorical_pipe, cat_cols),
-      ],
-      remainder="drop"
+    param_grid = {
+        "clf__n_estimators": [300, 500, 800, 1200],
+        "clf__max_depth": [None, 5, 10, 20, 30],
+        "clf__min_samples_split": [2, 5, 10],
+        "clf__min_samples_leaf": [1, 2, 4],
+        "clf__max_features": ["sqrt", "log2", None],
+        "clf__class_weight": [None, "balanced", "balanced_subsample"],
+    }
+    tuned_model, best_params, best_cv_auc = tune_model(
+        model=base_model,
+        X_train=X_train,
+        y_train=y_train,
+        param_grid=param_grid,
+        random_seed=RANDOM_SEED,
+        n_iter=30,
+        n_jobs=1,
+        cv=5,
     )
 
-    # Random Forest model
+    X_fit, X_val, y_fit, y_val = split_train_validation(
+        X_train,
+        y_train,
+        random_seed=RANDOM_SEED,
+        val_size=0.2,
+    )
+    tuned_model.fit(X_fit, y_fit)
+    val_proba = tuned_model.predict_proba(X_val)[:, 1]
+    best_threshold, best_val_f1 = tune_threshold(y_val, val_proba)
 
-    model = Pipeline(steps=[
-        ("prep", preprocessor),
-        ("clf", RandomForestClassifier(n_estimators=500, 
-        random_state=RANDOM_SEED,
-        class_weight="balanced",
-        n_jobs=1
-        )),
-    ])
+    tuned_model.fit(X_train, y_train)
+    test_proba = tuned_model.predict_proba(X_test)[:, 1]
+    test_metrics = evaluate_at_threshold(y_test, test_proba, threshold=best_threshold)
 
-    # Train/test split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_SEED, stratify=y
+    save_model_bundle(
+        model_path=MODEL_PATH,
+        model=tuned_model,
+        threshold=best_threshold,
+        metadata={
+            "best_cv_auc": best_cv_auc,
+            "best_params": best_params,
+            "val_f1_at_best_threshold": best_val_f1,
+        },
     )
 
-    # Cross-validation on training set
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
-    cv_results = cross_validate(model, X_train, y_train, cv=cv, scoring="roc_auc", n_jobs=1, return_train_score=False)
-
-    auc_scores = cv_results["test_score"]
-    print(f"RF 5-fold CV ROC-AUC: {auc_scores.mean():.4f} +/- {auc_scores.std():.4f}")
-    print(f"RF Fold AUCs:", [f"{s:.4f}" for s in auc_scores])
-
-    # Fit final model on full training set and evaluate on test set
-    model.fit(X_train, y_train)
-
-    proba = model.predict_proba(X_test)[:, 1]
-    preds = (proba >= 0.5).astype(int)
-
-    auc = roc_auc_score(y_test, proba)
-    acc = accuracy_score(y_test, preds)
-
-    os.makedirs("models", exist_ok=True)
-    dump(model, MODEL_PATH)
-
-    print("Categorical columns:", cat_cols)
-    print("Numeric columns:", num_cols)
-    print(f"Model saved -> {MODEL_PATH}")
-    print(f"Test ROC-AUC : {auc:.3f}")
-    print(f"Test Accuracy: {acc:.3f}")
+    print(f"Saved tuned model bundle -> {MODEL_PATH}")
+    print(f"Best CV ROC-AUC: {best_cv_auc:.4f}")
+    print(f"Best params: {best_params}")
+    print(f"Tuned threshold on validation split: {best_threshold:.2f} (F1={best_val_f1:.4f})")
+    print(f"Test ROC-AUC : {test_metrics['auc']:.4f}")
+    print(f"Test Accuracy: {test_metrics['accuracy']:.4f}")
+    print(f"Test Precision: {test_metrics['precision']:.4f}")
+    print(f"Test Recall: {test_metrics['recall']:.4f}")
+    print(f"Test F1: {test_metrics['f1']:.4f}")
 
 if __name__ == "__main__":
     main()
-    

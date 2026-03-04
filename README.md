@@ -16,6 +16,8 @@ Each model uses a scikit-learn pipeline combining:
 - scaling (numeric features)
 - one-hot encoding (categorical features)
 - logistic regression or random forest classifier
+- hyperparameter tuning (CV search on ROC-AUC)
+- threshold tuning on a validation split (optimize F1 instead of fixed 0.5)
 
 ---
 
@@ -37,22 +39,24 @@ The dataset is downloaded programmatically using `kagglehub` and is not stored i
 After removing dataset-origin features to avoid cohort bias, both models perform strongly:
 
 - **Logistic Regression**
-  - Test ROC-AUC: 0.896
-  - Accuracy: 0.826
-  - 5-fold CV ROC-AUC: 0.882 +/- 0.020
+  - Test ROC-AUC: 0.899
+  - Accuracy (tuned threshold): 0.777
+  - 5-fold CV ROC-AUC (best search): 0.888
+  - Tuned threshold: 0.29
 - **Random Forest**
-  - Test ROC-AUC: 0.914
-  - Accuracy: 0.826
-  - 5-fold CV ROC-AUC: 0.871 +/- 0.023
+  - Test ROC-AUC: 0.918
+  - Accuracy (tuned threshold): 0.799
+  - 5-fold CV ROC-AUC (best search): 0.887
+  - Tuned threshold: 0.38
 
 The random forest currently gives the best ROC-AUC on the held-out test set.
 
 ### Model Comparison Table
 
-| Model | ROC-AUC | Accuracy | Precision | Recall | F1 |
-|---|---:|---:|---:|---:|---:|
-| Random Forest | 0.9143 | 0.8261 | 0.8302 | 0.8627 | 0.8462 |
-| Logistic Regression | 0.8965 | 0.8261 | 0.8302 | 0.8627 | 0.8462 |
+| Model | ROC-AUC | Accuracy | Precision | Recall | F1 | Threshold |
+|---|---:|---:|---:|---:|---:|---:|
+| Random Forest | 0.9176 | 0.7989 | 0.7642 | 0.9216 | 0.8356 | 0.38 |
+| Logistic Regression | 0.8985 | 0.7772 | 0.7402 | 0.9216 | 0.8210 | 0.29 |
 
 ### ROC Curve
 ![ROC](reports/figures/roc_curve.png)
