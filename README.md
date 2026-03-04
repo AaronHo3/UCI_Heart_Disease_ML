@@ -36,26 +36,39 @@ The dataset is downloaded programmatically using `kagglehub` and is not stored i
 
 ## Results
 
-After removing dataset-origin features to avoid cohort bias, both models perform strongly:
+After removing dataset-origin features to avoid cohort bias, all three models perform strongly:
 
 - **Logistic Regression**
   - Test ROC-AUC: 0.899
   - Accuracy (tuned threshold): 0.777
+  - F1 (tuned threshold): 0.821
   - 5-fold CV ROC-AUC (best search): 0.888
   - Tuned threshold: 0.29
 - **Random Forest**
   - Test ROC-AUC: 0.918
   - Accuracy (tuned threshold): 0.799
+  - F1 (tuned threshold): 0.836
   - 5-fold CV ROC-AUC (best search): 0.887
   - Tuned threshold: 0.38
+- **Gradient Boosting (HistGradientBoostingClassifier)**
+  - Test ROC-AUC: 0.914
+  - Accuracy (tuned threshold): 0.826
+  - F1 (tuned threshold): 0.852
+  - 5-fold CV ROC-AUC (best search): 0.881
+  - Tuned threshold: 0.46
 
-The random forest currently gives the best ROC-AUC on the held-out test set.
+Model tradeoff summary:
+
+- **Random Forest** gives the best held-out ROC-AUC.
+- **Gradient Boosting** gives the best held-out Accuracy and F1.
+- **Logistic Regression** remains the most transparent baseline for interpretation.
 
 ### Model Comparison Table
 
 | Model | ROC-AUC | Accuracy | Precision | Recall | F1 | Threshold |
 |---|---:|---:|---:|---:|---:|---:|
 | Random Forest | 0.9176 | 0.7989 | 0.7642 | 0.9216 | 0.8356 | 0.38 |
+| Gradient Boosting | 0.9144 | 0.8261 | 0.8070 | 0.9020 | 0.8519 | 0.46 |
 | Logistic Regression | 0.8985 | 0.7772 | 0.7402 | 0.9216 | 0.8210 | 0.29 |
 
 ### ROC Curve
@@ -77,6 +90,13 @@ Key predictors include:
 - male sex
 
 These align with established cardiology risk factors.
+
+## What This Demonstrates
+
+- Comparing distinct model families: linear model (logistic regression), bagging (random forest), and boosting (hist gradient boosting).
+- Using cross-validated hyperparameter search rather than default settings.
+- Tuning decision thresholds for business/clinical objectives (F1) instead of relying on 0.5.
+- Evaluating tradeoffs across ROC-AUC, Accuracy, Precision, Recall, and F1.
 
 ---
 
