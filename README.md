@@ -71,11 +71,16 @@ Model tradeoff summary:
 | Gradient Boosting | 0.9144 | 0.8261 | 0.8070 | 0.9020 | 0.8519 | 0.46 |
 | Logistic Regression | 0.8985 | 0.7772 | 0.7402 | 0.9216 | 0.8210 | 0.29 |
 
-### ROC Curve
-![ROC](reports/figures/roc_curve.png)
+### ROC Curves (All Models)
+![ROC](reports/figures/roc_curve_all_models.png)
 
-### Confusion Matrix
-![Confusion Matrix](reports/figures/confusion_matrix.png)
+### Confusion Matrices
+#### Logistic Regression
+![Confusion Matrix - Logistic Regression](reports/figures/confusion_matrix_logreg.png)
+#### Random Forest
+![Confusion Matrix - Random Forest](reports/figures/confusion_matrix_rf.png)
+#### Gradient Boosting
+![Confusion Matrix - Gradient Boosting](reports/figures/confusion_matrix_gb.png)
 
 ### Feature Importance (Logistic Regression Coefficients)
 ![Feature Importance](reports/figures/feature_importance.png)
@@ -123,6 +128,11 @@ make compare     # writes reports/model_comparison.csv
 - `models/rf.joblib`
 - `models/gb.joblib`
 - `reports/model_comparison.csv`
-- `reports/figures/roc_curve.png`
-- `reports/figures/confusion_matrix.png`
+- `reports/figures/roc_curve_all_models.png`
+- `reports/figures/roc_curve_logreg.png`
+- `reports/figures/roc_curve_rf.png`
+- `reports/figures/roc_curve_gb.png`
+- `reports/figures/confusion_matrix_logreg.png`
+- `reports/figures/confusion_matrix_rf.png`
+- `reports/figures/confusion_matrix_gb.png`
 - `reports/figures/feature_importance.png`
