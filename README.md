@@ -1,5 +1,7 @@
 # Heart Disease Classification (Logistic Regression + Random Forest + Gradient Boosting)
 
+**NOTICE:** This project is meant purely for learning and discovery.
+
 A reproducible machine learning pipeline for predicting heart disease from clinical features using logistic regression, random forest, and gradient boosting models.
 
 This project demonstrates an end-to-end ML workflow including preprocessing, cross-validation, model comparison, evaluation, interpretability, and reproducibility practices.
