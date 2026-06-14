@@ -37,7 +37,7 @@ Following Gebru et al., *Datasheets for Datasets* (2021).
 
 ## Preprocessing / labeling
 - Binary target `num > 0`; `id`/`num`/`dataset` excluded from features (`dataset`
-  retained only as a grouping variable). `chol == 0` → NaN. Numeric features
+  retained only as a grouping variable). `chol == 0` -> NaN. Numeric features
   median-imputed + scaled; categoricals mode-imputed + one-hot encoded.
 
 ## Uses

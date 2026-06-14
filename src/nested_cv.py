@@ -14,7 +14,7 @@ single-CV pipeline lacked:
 
 Outputs
 -------
-* ``reports/nested_cv_results.csv`` - metric ± CI per model.
+* ``reports/nested_cv_results.csv`` - metric +/- CI per model.
 * ``reports/delong_pairwise.csv`` - pairwise AUC tests.
 * ``reports/figures/nested_vs_naive_auc.png`` - the optimism-bias exhibit.
 
@@ -166,7 +166,7 @@ def plot_optimism(table: pd.DataFrame) -> str:
         width,
         yerr=[table["auc"] - table["auc_lo"], table["auc_hi"] - table["auc"]],
         capsize=4,
-        label="Nested CV (unbiased) ±95% CI",
+        label="Nested CV (unbiased) +/-95% CI",
     )
     for i, row in table.iterrows():
         ax.annotate(

@@ -144,7 +144,7 @@ def main() -> None:
     print(res["baseline"].to_string(index=False))
     d = res["delong"]
     print(
-        f"\nDeLong full vs proxy: Δ={d.diff:+.4f}, p={d.p_value:.4f} -> "
+        f"\nDeLong full vs proxy: delta={d.diff:+.4f}, p={d.p_value:.4f} -> "
         f"{d.verdict()}"
     )
     print(f"\nWrote: {fig}, reports/decision_curve.csv, reports/clinical_baseline.csv")

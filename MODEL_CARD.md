@@ -6,7 +6,7 @@ artifacts for methodology demonstration, not medical devices.**
 
 ## Model details
 - **Developers:** Aaron Ho (portfolio / research project).
-- **Models:** scikit-learn pipelines (median/mode impute → scale → one-hot →
+- **Models:** scikit-learn pipelines (median/mode impute -> scale -> one-hot ->
   classifier) for (a) logistic regression, (b) random forest, (c)
   HistGradientBoosting. Logistic regression is the **recommended** model.
 - **Version / provenance:** seed 100; exact commit, library versions, and
@@ -34,13 +34,13 @@ artifacts for methodology demonstration, not medical devices.**
 - **Uncertainty:** split-conformal coverage and prediction-set size.
 
 ## Quantitative analysis (headline)
-- Pooled-CV AUC ≈ 0.88; **leave-one-site-out AUC ≈ 0.78-0.82** (the honest
+- Pooled-CV AUC ~0.88; **leave-one-site-out AUC ~0.78-0.82** (the honest
   estimate). Models are statistically indistinguishable (DeLong p > 0.33).
 - A 7-feature clinical proxy is indistinguishable from the full model (p = 0.68).
 - Full numbers with CIs: `reports/FINDINGS.md`. Narrative: `REPORT.md`.
 
 ## Ethical considerations & known limitations
-- **Fairness:** at a single 0.5 threshold the model misses women's disease ~2.4×
+- **Fairness:** at a single 0.5 threshold the model misses women's disease ~2.4x
   as often as men's (FNR 0.36 vs 0.15), an artifact of label shift / global
   thresholding. Mitigation: group-aware, prevalence-adjusted thresholds.
 - **Generalization:** performance degrades on unseen hospitals; calibration

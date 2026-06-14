@@ -131,7 +131,7 @@ def permutation_importances(X_tr, y_tr, X_te, y_te) -> tuple[pd.DataFrame, str]:
     fig, ax = plt.subplots(figsize=(8, 6))
     top = table.iloc[::-1]
     ax.barh(top["feature"], top["importance"], xerr=top["std"], capsize=3)
-    ax.set_xlabel("Mean AUC drop when permuted (±std over 30 repeats)")
+    ax.set_xlabel("Mean AUC drop when permuted (+/-std over 30 repeats)")
     ax.set_title("Permutation importance (Gradient Boosting, held-out test)")
     fig.tight_layout()
     path = os.path.join(FIGURES_DIR, "permutation_importance.png")

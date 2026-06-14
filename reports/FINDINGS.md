@@ -28,7 +28,7 @@ distributions but in **outcome prevalence** and **feature availability**:
 | VA Long Beach | 200 | 74.5% | 97% | vitals ~28%, ca 99%, thal 83% |
 | Switzerland | 123 | **93.5%** (8 negatives) | 92% | chol 100%=0, fbs 61%, ca 96% |
 
-- **Label shift** (dominant): prevalence spans 36%→93%.
+- **Label shift** (dominant): prevalence spans 36%->93%.
 - **Covariate shift**: sex/age/vitals distributions differ by site.
 - **Feature-support shift**: `ca`/`thal`/`slope` (classically the most
   predictive features) are ~90-99% missing outside Cleveland.
@@ -51,7 +51,7 @@ holding out an entire hospital reveals the real drop:
 | Gradient Boosting | 0.866 | 0.785 | **-0.081** |
 
 The simplest model transfers best; flexible learners overfit site-specific
-structure. → `figures/loso_gap.png`
+structure. -> `figures/loso_gap.png`
 
 ### Result 2 - Per-site discrimination is uneven, sometimes unmeasurable
 
@@ -66,19 +66,19 @@ Gradient Boosting, held-out per site:
 
 Switzerland's interval is enormous (only 8 negatives) - its AUC is not a
 trustworthy discrimination estimate, and the CI says so. VA Long Beach is the
-genuine failure: barely better than chance. → `figures/loso_per_site.png`
+genuine failure: barely better than chance. -> `figures/loso_per_site.png`
 
 ### Result 3 - Calibration collapses under label shift
 
-Mean predicted probability barely moves (≈0.47→0.64) while true prevalence
-spans 0.36→0.94; every site sits below the calibration diagonal. The model
+Mean predicted probability barely moves (~0.47->0.64) while true prevalence
+spans 0.36->0.94; every site sits below the calibration diagonal. The model
 exports its ~50% training prevalence and cannot adapt. ECE rises to 0.30
-(Switzerland), 0.22 (VA). → `figures/loso_calibration_drift.png`
+(Switzerland), 0.22 (VA). -> `figures/loso_calibration_drift.png`
 
 ### Result 4 - The dropped `dataset` column leaks prevalence (now empirical)
 
 Re-adding the site indicator as a feature inflates pooled-CV AUC by **+0.025**
-(0.879 → 0.904, logistic regression). A model that can see the site shortcuts to
+(0.879 -> 0.904, logistic regression). A model that can see the site shortcuts to
 its base rate - direct evidence (not assertion) that the site column must stay
 out of the features.
 
@@ -112,11 +112,11 @@ Tuning hyperparameters on the same folds you then report inflates AUC:
 | Gradient Boosting | 0.886 | 0.880 | +0.006 |
 
 The bias is largest for the most flexible model (Random Forest). The nested
-estimates are the honest ones. → `figures/nested_vs_naive_auc.png`
+estimates are the honest ones. -> `figures/nested_vs_naive_auc.png`
 
 ### Are the models actually different? (DeLong test)
 
-| Comparison | AUC A | AUC B | Δ | p-value | Verdict |
+| Comparison | AUC A | AUC B | delta | p-value | Verdict |
 |---|---:|---:|---:|---:|---|
 | LogReg vs Random Forest | 0.880 | 0.875 | +0.005 | 0.352 | **indistinguishable** |
 | LogReg vs Gradient Boosting | 0.880 | 0.880 | +0.000 | 0.961 | **indistinguishable** |
@@ -146,7 +146,7 @@ In-distribution (pooled) calibration, Brier / ECE by recalibration method:
 
 Logistic regression is well-calibrated out of the box; recalibrating it only
 adds noise. Gradient Boosting is the worst calibrated but **isotonic
-recalibration more than halves its ECE** (0.106 → 0.042). → `figures/calibration_reliability.png`
+recalibration more than halves its ECE** (0.106 -> 0.042). -> `figures/calibration_reliability.png`
 
 Note this is the *in-distribution* picture. Phase 1 showed calibration breaks
 badly *across sites* (ECE up to 0.30) - a harder problem that simple
@@ -157,7 +157,7 @@ just miscalibration.
 
 Across the clinically relevant threshold range both the full model and the
 clinical proxy yield **higher net benefit than treat-all and treat-none**, so
-acting on the model beats the trivial policies. → `figures/decision_curve.png`
+acting on the model beats the trivial policies. -> `figures/decision_curve.png`
 
 ### Standard-of-care baseline - does complexity actually help?
 
@@ -170,7 +170,7 @@ exang, oldpeak) vs the full 13-feature Gradient Boosting model:
 | Full ML (GB, all features) | 13 | 0.874 [0.822, 0.922] |
 | Clinical proxy (LogReg, routine features) | 7 | 0.881 [0.831, 0.924] |
 
-DeLong: Δ = -0.007, **p = 0.68 → indistinguishable**. The complex model does
+DeLong: delta = -0.007, **p = 0.68 -> indistinguishable**. The complex model does
 **not** beat a simple, deployable clinical baseline. (This proxy is *not* a
 validated score like Framingham/ASCVD - those require HDL, smoking,
 BP-treatment and diabetes data this dataset lacks - it is an honest
@@ -197,11 +197,11 @@ nearly identifies the hospital:
 
 Missingness "predicts" disease at AUC 0.747 across the pooled data, but **0.498
 (pure chance) within the one complete cohort**. The apparent signal is entirely
-a site→prevalence proxy, not clinical information.
+a site->prevalence proxy, not clinical information.
 
 ### Adding missingness indicators as features - measured three ways
 
-| Evaluation | Without indicators | With indicators | Δ |
+| Evaluation | Without indicators | With indicators | delta |
 |---|---:|---:|---:|
 | Pooled random-split CV | 0.879 | 0.900 | **+0.021** |
 | LOSO, pooled across sites | 0.821 | 0.864 | **+0.043** |
@@ -209,7 +209,7 @@ a site→prevalence proxy, not clinical information.
 
 Indicators help only when the metric ranks patients *across* populations of
 different prevalence (pooled CV, and even pooled-LOSO). The honest **within-site**
-transfer is essentially unchanged (+0.006 ≈ noise). Two lessons: (1) missingness
+transfer is essentially unchanged (+0.006 ~noise). Two lessons: (1) missingness
 here is a prevalence proxy, not signal; (2) even "external validation" can leak
 prevalence if you pool across sites - per-site evaluation is the trustworthy one.
 
@@ -227,7 +227,7 @@ Pooled CV (logistic regression), cholesterol and the rest imputed by:
 Imputation strategy barely moves AUC (all within each other's bootstrap CI);
 MICE gives a tiny, non-significant bump. Fancy imputation cannot recover
 features that are 90-99% absent - consistent with the feature-support shift
-identified in Phase 1. → `figures/imputation_sensitivity.png`
+identified in Phase 1. -> `figures/imputation_sensitivity.png`
 
 ---
 
@@ -239,16 +239,16 @@ and the *direction* of each effect is checked against known cardiology.
 
 ### What drives the model
 
-Permutation importance (mean AUC drop on the held-out test, ±std over 30
-repeats) ranks **chest-pain type (cp) ≫ oldpeak > cholesterol > exang > sex**.
+Permutation importance (mean AUC drop on the held-out test, +/-std over 30
+repeats) ranks **chest-pain type (cp) >> oldpeak > cholesterol > exang > sex**.
 SHAP agrees and adds direction:
 
-- `cp_asymptomatic` high → higher risk; `cp_atypical angina` → lower risk;
-- `oldpeak` (ST depression) high → higher risk;
-- `thalch` (max heart rate) high → **lower** risk (better exercise capacity);
-- `exang` (exercise angina) present → higher risk; `ca` more vessels → higher.
+- `cp_asymptomatic` high -> higher risk; `cp_atypical angina` -> lower risk;
+- `oldpeak` (ST depression) high -> higher risk;
+- `thalch` (max heart rate) high -> **lower** risk (better exercise capacity);
+- `exang` (exercise angina) present -> higher risk; `ca` more vessels -> higher.
 
-→ `figures/shap_summary.png` (global), `figures/shap_local.png` (highest- and
+-> `figures/shap_summary.png` (global), `figures/shap_local.png` (highest- and
 lowest-risk patient decompositions), `figures/permutation_importance.png`,
 `figures/pdp.png`.
 
@@ -258,14 +258,14 @@ Signed logistic-regression coefficients vs the established direction of effect:
 
 | Feature | Learned | Expected | Agrees? |
 |---|:--:|:--:|:--:|
-| oldpeak (ST depression) | + | + | ✅ |
-| ca (major vessels) | + | + | ✅ |
-| exang (exercise angina) | + | + | ✅ |
-| thalch (max heart rate) | - | - | ✅ |
-| age | + | + | ✅ |
-| sex = male | + | + | ✅ |
-| cp = asymptomatic | + | + | ✅ |
-| thal = reversible defect | + | + | ✅ |
+| oldpeak (ST depression) | + | + | yes |
+| ca (major vessels) | + | + | yes |
+| exang (exercise angina) | + | + | yes |
+| thalch (max heart rate) | - | - | yes |
+| age | + | + | yes |
+| sex = male | + | + | yes |
+| cp = asymptomatic | + | + | yes |
+| thal = reversible defect | + | + | yes |
 
 **8 / 8 features match cardiology priors.** Nothing is learned in the
 clinically *wrong* direction - the model has face validity. (The marginal
@@ -289,8 +289,8 @@ the high-prevalence cohorts are 92-97% male).
 | Male | 726 (459) | 0.632 | 0.855 [0.825, 0.883] | **0.148** | 0.330 |
 
 Discrimination is essentially equal, but at a single 0.5 threshold the model
-**misses disease in women 2.4× as often as in men** (FNR 0.36 vs 0.15), while
-over-flagging men. → `figures/fairness_by_sex.png`
+**misses disease in women 2.4x as often as in men** (FNR 0.36 vs 0.15), while
+over-flagging men. -> `figures/fairness_by_sex.png`
 
 **Mechanism (not a coincidence):** women have much lower prevalence here (26% vs
 63%), so a threshold tuned to the ~55% pooled rate systematically under-calls
@@ -323,22 +323,22 @@ is the actionable fix that the calibration work in Phase 3 already motivates.
 Split-conformal prediction (LAC) wraps the logistic-regression model and returns
 a *prediction set* per patient - `{no disease}`, `{disease}`, or `{0,1}` (the
 model abstaining: "refer for more testing") - with a finite-sample guarantee
-that the true label is in the set with probability ≥ 1 - α. Coverage is a
+that the true label is in the set with probability >= 1 - alpha. Coverage is a
 property *in expectation over the calibration/test split*, so it is verified by
 averaging 100 random splits (single-split coverage is noisy and uninformative).
 
-| α | Target | Mean empirical coverage | Mean set size | % `{0,1}` uncertain |
+| alpha | Target | Mean empirical coverage | Mean set size | % `{0,1}` uncertain |
 |---|---:|---:|---:|---:|
-| 0.1 | 0.90 | **0.908 ± 0.025** | 1.27 | 27% |
-| 0.2 | 0.80 | **0.802 ± 0.033** | 1.01 | 2% |
+| 0.1 | 0.90 | **0.908 +/- 0.025** | 1.27 | 27% |
+| 0.2 | 0.80 | **0.802 +/- 0.033** | 1.01 | 2% |
 
 The guarantee holds. At 90% coverage the model returns an honest "uncertain"
 set for ~27% of patients - a clinically actionable deferral signal that a bare
-probability cannot express. → `figures/conformal_coverage.png`
+probability cannot express. -> `figures/conformal_coverage.png`
 
 **Honest caveat (links to Phase 7):** split conformal guarantees *marginal*
 coverage, not *conditional*. Disaggregated by sex, coverage is close to target
-but not identical (e.g. at α=0.2, men 0.792 vs women 0.840) - a reminder that a
+but not identical (e.g. at alpha=0.2, men 0.792 vs women 0.840) - a reminder that a
 marginal guarantee can still under-cover a subgroup, the uncertainty-side echo
 of the fairness gap. Group-conditional (Mondrian) conformal would restore
 per-group coverage.

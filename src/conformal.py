@@ -142,7 +142,7 @@ def plot(overall: pd.DataFrame, subgroup: pd.DataFrame) -> str:
     # Left: target vs mean empirical coverage (error bars over splits).
     x = np.arange(len(overall))
     width = 0.35
-    ax1.bar(x - width / 2, overall["target_coverage"], width, label="Target (1-α)", color="#bbbbbb")
+    ax1.bar(x - width / 2, overall["target_coverage"], width, label="Target (1-alpha)", color="#bbbbbb")
     ax1.bar(
         x + width / 2, overall["mean_coverage"], width,
         yerr=overall["coverage_std"], capsize=4, label="Mean empirical", color="#4c72b0",
@@ -154,7 +154,7 @@ def plot(overall: pd.DataFrame, subgroup: pd.DataFrame) -> str:
             ha="center", fontsize=8,
         )
     ax1.set_xticks(x)
-    ax1.set_xticklabels([f"α={a}" for a in overall["alpha"]])
+    ax1.set_xticklabels([f"alpha={a}" for a in overall["alpha"]])
     ax1.set_ylim(0.0, 1.05)
     ax1.set_ylabel("Coverage")
     ax1.set_title(f"Marginal coverage holds (mean of {N_REPEATS} splits)")
@@ -170,7 +170,7 @@ def plot(overall: pd.DataFrame, subgroup: pd.DataFrame) -> str:
     for i, a in enumerate(ALPHAS):
         ax2.hlines(1 - a, i - 0.5, i + 0.5, color="red", ls="--", lw=1)
     ax2.set_xticks(xa)
-    ax2.set_xticklabels([f"α={a}" for a in ALPHAS])
+    ax2.set_xticklabels([f"alpha={a}" for a in ALPHAS])
     ax2.set_ylim(0.0, 1.05)
     ax2.set_ylabel("Mean coverage")
     ax2.set_title("Conditional coverage by sex (red = target)")

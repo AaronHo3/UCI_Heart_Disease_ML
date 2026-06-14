@@ -6,7 +6,7 @@ interesting part. This report reframes it as a *clinical machine-learning
 methodology* study: how well does a heart-disease classifier trained on some
 hospitals generalize to a hospital it has never seen, and is its output
 trustworthy enough to act on? The headline result is that pooled cross-validation
-(AUC ≈ 0.88) substantially overstates real transfer (leave-one-site-out AUC ≈
+(AUC ~0.88) substantially overstates real transfer (leave-one-site-out AUC ~
 0.78-0.82), that probability calibration breaks under cross-site label shift, and
 that a 7-feature clinical baseline is statistically indistinguishable from the
 full model. Every claim is reported with a confidence interval and, where
@@ -41,7 +41,7 @@ UCI Heart Disease (n = 920), an aggregate of four hospital cohorts. Binary targe
 | VA Long Beach | 200 | 74.5% | 97% | vitals ~28%, ca 99%, thal 83% |
 | Switzerland | 123 | 93.5% (8 neg.) | 92% | chol 100%=0, fbs 61%, ca 96% |
 
-- **Label shift**: prevalence 36% → 93.5%.
+- **Label shift**: prevalence 36% -> 93.5%.
 - **Covariate shift**: sex/age/vitals.
 - **Feature-support shift**: `ca`/`thal`/`slope` are effectively Cleveland-only.
 
@@ -50,7 +50,7 @@ See the [Datasheet](DATASHEET.md) for provenance and known artifacts (e.g.
 
 ## 3. Methods
 
-scikit-learn pipelines (impute → scale → one-hot → classifier) for logistic
+scikit-learn pipelines (impute -> scale -> one-hot -> classifier) for logistic
 regression, random forest, and gradient boosting (HistGradientBoosting), seed
 100. Specific techniques:
 
@@ -69,16 +69,16 @@ analysis is one `make` target; provenance in `reports/run_manifest.json`.
 
 ## 4. Results
 
-**(1) The generalization gap is real.** Pooled CV → LOSO AUC drops -0.058
+**(1) The generalization gap is real.** Pooled CV -> LOSO AUC drops -0.058
 (LogReg), -0.075 (RF), -0.081 (GB). The simplest model transfers best.
 `reports/figures/loso_gap.png`
 
 **(2) Per-site failure is uneven.** VA Long Beach AUC collapses to 0.66
-[0.56, 0.76]; Switzerland is uninterpretable (8 negatives → 0.79 [0.61, 0.96]).
+[0.56, 0.76]; Switzerland is uninterpretable (8 negatives -> 0.79 [0.61, 0.96]).
 `reports/figures/loso_per_site.png`
 
 **(3) Calibration breaks under label shift.** Predicted probabilities barely move
-(≈0.47→0.64) while true prevalence spans 0.36→0.94; ECE rises to 0.30.
+(~0.47->0.64) while true prevalence spans 0.36->0.94; ECE rises to 0.30.
 `reports/figures/loso_calibration_drift.png`
 
 **(4) The models are statistically indistinguishable.** Nested-CV AUCs 0.880 /
@@ -100,7 +100,7 @@ cardiologically correct direction. `reports/figures/shap_summary.png`
 within-site AUC unchanged (+0.006).
 
 **(8) A fairness gap hides behind equal AUC.** At a single 0.5 threshold the
-model misses women's disease 2.4× as often as men's (FNR 0.36 vs 0.15), driven by
+model misses women's disease 2.4x as often as men's (FNR 0.36 vs 0.15), driven by
 the same label-shift/calibration mechanism. `reports/figures/fairness_by_sex.png`
 
 **(9) Honest uncertainty.** Split-conformal prediction achieves its target

@@ -10,14 +10,14 @@ probabilities calibrated, is it fair, and can it quantify its own uncertainty?**
 Every result is reported with a confidence interval and, where comparative, a
 statistical test.
 
-> 📄 **[REPORT.md](REPORT.md)** - the full mini-paper · 📊 **[reports/FINDINGS.md](reports/FINDINGS.md)** - all numbers with CIs · 🧾 **[Model Card](MODEL_CARD.md)** · **[Datasheet](DATASHEET.md)**
+> **[REPORT.md](REPORT.md)** - the full mini-paper | **[reports/FINDINGS.md](reports/FINDINGS.md)** - all numbers with CIs | **[Model Card](MODEL_CARD.md)** | **[Datasheet](DATASHEET.md)**
 
 ---
 
 ## The headline result
 
 The four hospital cohorts (Cleveland, Hungary, Switzerland, VA Long Beach) differ
-in outcome prevalence (36% → 93%), demographics, and even which features were
+in outcome prevalence (36% -> 93%), demographics, and even which features were
 recorded. So the standard pooled cross-validation number is optimistic. Holding
 out an **entire hospital** (leave-one-site-out) reveals the real transfer:
 
@@ -36,28 +36,28 @@ And probability **calibration collapses** across sites - the model exports its
 
 ## What else the study finds (all in [FINDINGS.md](reports/FINDINGS.md))
 
-- **The models are statistically tied.** Nested-CV AUCs ≈ 0.88; all pairwise
+- **The models are statistically tied.** Nested-CV AUCs ~0.88; all pairwise
   DeLong tests p > 0.33. Chasing the "best" model is chasing noise.
 - **Complexity doesn't pay.** A 7-feature clinical baseline (AUC 0.881) is
   indistinguishable from the full 13-feature model (0.874), DeLong p = 0.68 - and
   both beat treat-all/treat-none on decision-curve net benefit.
 - **The model is clinically sensible.** 8/8 key features (ST depression, vessels,
-  exercise angina, max heart rate, …) are learned in the cardiologically correct
+  exercise angina, max heart rate, ...) are learned in the cardiologically correct
   direction (SHAP + signed coefficients).
 - **Missingness is a leak, not a signal.** It predicts the *site* at 85.5% but is
   pure chance (AUC 0.50) within a single complete cohort.
 - **A fairness gap hides behind equal AUC.** At a 0.5 threshold the model misses
-  women's disease 2.4× as often as men's (FNR 0.36 vs 0.15).
+  women's disease 2.4x as often as men's (FNR 0.36 vs 0.15).
 - **Honest uncertainty.** Split-conformal prediction hits its target coverage
   (0.91 at 90%) and abstains on ~27% of patients.
 
 ## What this demonstrates
 
-External validation · nested cross-validation · bootstrap confidence intervals ·
-DeLong significance testing · probability calibration & recalibration ·
-decision-curve analysis · standard-of-care baselining · SHAP interpretability with
-clinical cross-checks · informative-missingness leakage analysis · subgroup
-fairness auditing · conformal prediction · reproducible pipelines, unit tests, and
+External validation | nested cross-validation | bootstrap confidence intervals |
+DeLong significance testing | probability calibration & recalibration |
+decision-curve analysis | standard-of-care baselining | SHAP interpretability with
+clinical cross-checks | informative-missingness leakage analysis | subgroup
+fairness auditing | conformal prediction | reproducible pipelines, unit tests, and
 CI. The guiding principle throughout is **honest reporting over impressive
 numbers**.
 
@@ -104,5 +104,5 @@ reports/               FINDINGS.md, CSVs, figures, run_manifest.json
 REPORT.md MODEL_CARD.md DATASHEET.md
 ```
 
-> ⚠️ Research/education only - not a medical device. See the
+> WARNING: Research/education only - not a medical device. See the
 > [Model Card](MODEL_CARD.md) for intended use and limitations.
