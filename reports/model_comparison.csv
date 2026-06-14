@@ -1,4 +1,0 @@
-model,auc,accuracy,precision,recall,f1,threshold,cv_auc,val_f1,best_params
-Random Forest,0.9175035868005739,0.7989130434782609,0.7642276422764228,0.9215686274509803,0.8355555555555556,0.3799999999999999,0.8866132171552227,0.847457627118644,"{'clf__n_estimators': 500, 'clf__min_samples_split': 2, 'clf__min_samples_leaf': 1, 'clf__max_features': 'log2', 'clf__max_depth': 5, 'clf__class_weight': 'balanced_subsample'}"
-Gradient Boosting,0.9143950263032041,0.8260869565217391,0.8070175438596491,0.9019607843137255,0.8518518518518519,0.45999999999999985,0.8809301127458309,0.8470588235294118,"{'clf__min_samples_leaf': 40, 'clf__max_leaf_nodes': 63, 'clf__max_iter': 400, 'clf__learning_rate': 0.01, 'clf__l2_regularization': 0.1}"
-Logistic Regression,0.898493543758967,0.7771739130434783,0.7401574803149606,0.9215686274509803,0.8209606986899564,0.2899999999999999,0.887464001420641,0.850828729281768,"{'clf__C': 0.1, 'clf__class_weight': 'balanced', 'clf__solver': 'lbfgs'}"
