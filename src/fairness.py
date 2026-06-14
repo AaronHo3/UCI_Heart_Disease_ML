@@ -1,14 +1,14 @@
-"""Phase 7 — Fairness / subgroup audit.
+"""Phase 7 - Fairness / subgroup audit.
 
 Aggregate AUC hides who the model fails. Heart disease is historically
 under-diagnosed in women, and this dataset skews heavily male (and the
-high-prevalence cohorts are 92–97% male), so a sex-disaggregated audit is
-essential — reported with subgroup sizes so thin groups are not over-read.
+high-prevalence cohorts are 92-97% male), so a sex-disaggregated audit is
+essential - reported with subgroup sizes so thin groups are not over-read.
 
 For each subgroup we report n, prevalence, AUC (95% CI), calibration (ECE), and
 the two error rates that matter clinically at a 0.5 operating point:
 
-* **FNR** (false-negative rate = missed disease) — the equity-critical metric;
+* **FNR** (false-negative rate = missed disease) - the equity-critical metric;
 * **FPR** (false-positive rate = unnecessary work-up).
 
 Outputs
@@ -36,7 +36,7 @@ REPORTS_DIR = "reports"
 FIGURES_DIR = os.path.join(REPORTS_DIR, "figures")
 THRESHOLD = 0.5
 AGE_BINS = [0, 50, 60, 200]
-AGE_LABELS = ["<50", "50–59", "60+"]
+AGE_LABELS = ["<50", "50-59", "60+"]
 
 
 def _error_rates(y_true: np.ndarray, y_prob: np.ndarray, threshold: float) -> tuple[float, float]:

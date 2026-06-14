@@ -1,4 +1,4 @@
-"""Phase 3a — Probability calibration.
+"""Phase 3a - Probability calibration.
 
 AUC says nothing about whether a predicted "0.8" means an 80% chance of disease.
 For a clinical tool that question is central: a miscalibrated model gives
@@ -14,8 +14,8 @@ Calibration Error (ECE) for each model:
 
 Outputs
 -------
-* ``reports/calibration_metrics.csv`` — Brier/ECE per model per method.
-* ``reports/figures/calibration_reliability.png`` — reliability diagrams.
+* ``reports/calibration_metrics.csv`` - Brier/ECE per model per method.
+* ``reports/figures/calibration_reliability.png`` - reliability diagrams.
 """
 from __future__ import annotations
 

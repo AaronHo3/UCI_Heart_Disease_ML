@@ -1,4 +1,4 @@
-# Model Card — Heart Disease Classifier
+# Model Card - Heart Disease Classifier
 
 Following Mitchell et al., *Model Cards for Model Reporting* (2019). This card
 describes the models studied in this repository. **These models are research
@@ -15,7 +15,7 @@ artifacts for methodology demonstration, not medical devices.**
   features.
 
 ## Intended use
-- **Intended:** education and research on clinical-ML methodology — external
+- **Intended:** education and research on clinical-ML methodology - external
   validation, calibration, fairness, uncertainty quantification.
 - **Out of scope:** real clinical decision-making, diagnosis, triage, or any
   deployment affecting patients. The data is decades old, from four specific
@@ -34,7 +34,7 @@ artifacts for methodology demonstration, not medical devices.**
 - **Uncertainty:** split-conformal coverage and prediction-set size.
 
 ## Quantitative analysis (headline)
-- Pooled-CV AUC ≈ 0.88; **leave-one-site-out AUC ≈ 0.78–0.82** (the honest
+- Pooled-CV AUC ≈ 0.88; **leave-one-site-out AUC ≈ 0.78-0.82** (the honest
   estimate). Models are statistically indistinguishable (DeLong p > 0.33).
 - A 7-feature clinical proxy is indistinguishable from the full model (p = 0.68).
 - Full numbers with CIs: `reports/FINDINGS.md`. Narrative: `REPORT.md`.
@@ -52,4 +52,4 @@ artifacts for methodology demonstration, not medical devices.**
 ## Recommendation
 If used at all (for research), use **logistic regression with group-aware
 thresholds and conformal abstention**, and report site-specific, subgroup-specific
-metrics with confidence intervals — never a single pooled number.
+metrics with confidence intervals - never a single pooled number.

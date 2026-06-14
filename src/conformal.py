@@ -1,4 +1,4 @@
-"""Phase 6 — Uncertainty quantification via split-conformal prediction.
+"""Phase 6 - Uncertainty quantification via split-conformal prediction.
 
 Standard ML gives a point probability with no guarantee. Split-conformal
 prediction wraps any fitted model and returns, for each patient, a *prediction
@@ -15,7 +15,7 @@ Method (Least Ambiguous set-valued Classifier, LAC)
    ceil((n_cal+1)(1-alpha)) / n_cal.
 5. Test prediction set = { class c : p(c) >= 1 - q_hat }.
 
-Sets of size 2 ({both}) are the model abstaining — clinically, "refer for more
+Sets of size 2 ({both}) are the model abstaining - clinically, "refer for more
 testing". We then verify empirical coverage and expose a known caveat: split
 conformal guarantees *marginal* coverage but can under-cover a subgroup, which
 links back to the Phase 7 fairness finding.

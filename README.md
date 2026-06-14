@@ -10,7 +10,7 @@ probabilities calibrated, is it fair, and can it quantify its own uncertainty?**
 Every result is reported with a confidence interval and, where comparative, a
 statistical test.
 
-> 📄 **[REPORT.md](REPORT.md)** — the full mini-paper · 📊 **[reports/FINDINGS.md](reports/FINDINGS.md)** — all numbers with CIs · 🧾 **[Model Card](MODEL_CARD.md)** · **[Datasheet](DATASHEET.md)**
+> 📄 **[REPORT.md](REPORT.md)** - the full mini-paper · 📊 **[reports/FINDINGS.md](reports/FINDINGS.md)** - all numbers with CIs · 🧾 **[Model Card](MODEL_CARD.md)** · **[Datasheet](DATASHEET.md)**
 
 ---
 
@@ -23,13 +23,13 @@ out an **entire hospital** (leave-one-site-out) reveals the real transfer:
 
 | Model | Pooled-CV AUC | **LOSO AUC** | Generalization gap |
 |---|---:|---:|---:|
-| Logistic Regression | 0.879 | **0.821** | −0.058 |
-| Random Forest | 0.876 | **0.801** | −0.075 |
-| Gradient Boosting | 0.866 | **0.785** | −0.081 |
+| Logistic Regression | 0.879 | **0.821** | -0.058 |
+| Random Forest | 0.876 | **0.801** | -0.075 |
+| Gradient Boosting | 0.866 | **0.785** | -0.081 |
 
 ![Generalization gap](reports/figures/loso_gap.png)
 
-And probability **calibration collapses** across sites — the model exports its
+And probability **calibration collapses** across sites - the model exports its
 ~50% training prevalence regardless of a hospital's true rate:
 
 ![Calibration drift](reports/figures/loso_calibration_drift.png)
@@ -39,7 +39,7 @@ And probability **calibration collapses** across sites — the model exports its
 - **The models are statistically tied.** Nested-CV AUCs ≈ 0.88; all pairwise
   DeLong tests p > 0.33. Chasing the "best" model is chasing noise.
 - **Complexity doesn't pay.** A 7-feature clinical baseline (AUC 0.881) is
-  indistinguishable from the full 13-feature model (0.874), DeLong p = 0.68 — and
+  indistinguishable from the full 13-feature model (0.874), DeLong p = 0.68 - and
   both beat treat-all/treat-none on decision-curve net benefit.
 - **The model is clinically sensible.** 8/8 key features (ST depression, vessels,
   exercise angina, max heart rate, …) are learned in the cardiologically correct
@@ -91,18 +91,18 @@ src/
   data.py              cohort-aware loader (site as grouping var; chol=0 -> NaN)
   pipeline_utils.py    sklearn pipelines + model builders
   metrics.py  stats.py bootstrap CIs, ECE/Brier, DeLong test
-  loso_validation.py   Phase 1 — leave-one-site-out external validation
-  nested_cv.py         Phase 2 — nested CV, bootstrap CIs, DeLong
-  calibration_analysis.py / decision_curve.py   Phase 3 — calibration + DCA
-  interpretability.py  Phase 4 — SHAP + clinical cross-check
-  missingness.py       Phase 5 — missingness leakage + imputation sensitivity
-  fairness.py          Phase 7 — subgroup audit (sex, age)
-  conformal.py         Phase 6 — split-conformal prediction
+  loso_validation.py   Phase 1 - leave-one-site-out external validation
+  nested_cv.py         Phase 2 - nested CV, bootstrap CIs, DeLong
+  calibration_analysis.py / decision_curve.py   Phase 3 - calibration + DCA
+  interpretability.py  Phase 4 - SHAP + clinical cross-check
+  missingness.py       Phase 5 - missingness leakage + imputation sensitivity
+  fairness.py          Phase 7 - subgroup audit (sex, age)
+  conformal.py         Phase 6 - split-conformal prediction
   manifest.py          reproducibility manifest
 tests/                 unit + smoke tests (CI: .github/workflows/ci.yml)
 reports/               FINDINGS.md, CSVs, figures, run_manifest.json
 REPORT.md MODEL_CARD.md DATASHEET.md
 ```
 
-> ⚠️ Research/education only — not a medical device. See the
+> ⚠️ Research/education only - not a medical device. See the
 > [Model Card](MODEL_CARD.md) for intended use and limitations.

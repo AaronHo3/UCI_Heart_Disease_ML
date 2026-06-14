@@ -1,4 +1,4 @@
-"""Phase 1 — Leave-One-Site-Out (LOSO) external validation.
+"""Phase 1 - Leave-One-Site-Out (LOSO) external validation.
 
 Research question
 -----------------
@@ -23,10 +23,10 @@ Method
 
 Outputs
 -------
-* ``reports/loso_results.csv`` — every per-site / pooled metric with CIs.
-* ``reports/figures/loso_gap.png`` — pooled vs LOSO AUC per model.
-* ``reports/figures/loso_per_site.png`` — per-site held-out AUC with CIs.
-* ``reports/figures/loso_calibration_drift.png`` — mean predicted prob vs true
+* ``reports/loso_results.csv`` - every per-site / pooled metric with CIs.
+* ``reports/figures/loso_gap.png`` - pooled vs LOSO AUC per model.
+* ``reports/figures/loso_per_site.png`` - per-site held-out AUC with CIs.
+* ``reports/figures/loso_calibration_drift.png`` - mean predicted prob vs true
   prevalence per held-out site (the label-shift miscalibration exhibit).
 """
 from __future__ import annotations

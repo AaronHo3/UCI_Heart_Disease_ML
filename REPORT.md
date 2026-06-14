@@ -7,7 +7,7 @@ methodology* study: how well does a heart-disease classifier trained on some
 hospitals generalize to a hospital it has never seen, and is its output
 trustworthy enough to act on? The headline result is that pooled cross-validation
 (AUC ≈ 0.88) substantially overstates real transfer (leave-one-site-out AUC ≈
-0.78–0.82), that probability calibration breaks under cross-site label shift, and
+0.78-0.82), that probability calibration breaks under cross-site label shift, and
 that a 7-feature clinical baseline is statistically indistinguishable from the
 full model. Every claim is reported with a confidence interval and, where
 comparative, a statistical test.
@@ -31,7 +31,7 @@ comparative, a statistical test.
 ## 2. Data
 
 UCI Heart Disease (n = 920), an aggregate of four hospital cohorts. Binary target
-`num > 0`. The cohorts differ on three axes simultaneously — this heterogeneity
+`num > 0`. The cohorts differ on three axes simultaneously - this heterogeneity
 *is* the study:
 
 | Cohort | n | Prevalence | % Male | Notable missingness |
@@ -69,8 +69,8 @@ analysis is one `make` target; provenance in `reports/run_manifest.json`.
 
 ## 4. Results
 
-**(1) The generalization gap is real.** Pooled CV → LOSO AUC drops −0.058
-(LogReg), −0.075 (RF), −0.081 (GB). The simplest model transfers best.
+**(1) The generalization gap is real.** Pooled CV → LOSO AUC drops -0.058
+(LogReg), -0.075 (RF), -0.081 (GB). The simplest model transfers best.
 `reports/figures/loso_gap.png`
 
 **(2) Per-site failure is uneven.** VA Long Beach AUC collapses to 0.66
@@ -82,7 +82,7 @@ analysis is one `make` target; provenance in `reports/run_manifest.json`.
 `reports/figures/loso_calibration_drift.png`
 
 **(4) The models are statistically indistinguishable.** Nested-CV AUCs 0.880 /
-0.875 / 0.880; all pairwise DeLong tests p > 0.33. Optimism bias (naive − nested)
+0.875 / 0.880; all pairwise DeLong tests p > 0.33. Optimism bias (naive - nested)
 is largest for the most flexible model. `reports/figures/nested_vs_naive_auc.png`
 
 **(5) Complexity does not beat a simple baseline.** A 7-feature clinical proxy
@@ -104,7 +104,7 @@ model misses women's disease 2.4× as often as men's (FNR 0.36 vs 0.15), driven 
 the same label-shift/calibration mechanism. `reports/figures/fairness_by_sex.png`
 
 **(9) Honest uncertainty.** Split-conformal prediction achieves its target
-coverage (0.908 at 90%) and abstains (`{0,1}`) on ~27% of patients — an
+coverage (0.908 at 90%) and abstains (`{0,1}`) on ~27% of patients - an
 actionable deferral signal. `reports/figures/conformal_coverage.png`
 
 ## 5. Discussion
@@ -114,7 +114,7 @@ optimistic and can hide real problems: degraded transfer, miscalibration, and
 inequitable error rates. Three independent analyses (LOSO, the cohort/missingness
 leakage probes, the subgroup audit) all trace back to **label shift across
 sites**. The practical recommendation is **logistic regression with group-aware,
-prevalence-adjusted thresholds and conformal abstention** — it transfers best, is
+prevalence-adjusted thresholds and conformal abstention** - it transfers best, is
 interpretable, is statistically as accurate as anything more complex, and its
 uncertainty can be quantified with a guarantee.
 

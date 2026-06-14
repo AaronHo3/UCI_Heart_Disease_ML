@@ -1,13 +1,13 @@
-"""Phase 5 — Missing data done properly.
+"""Phase 5 - Missing data done properly.
 
 Three questions:
 
-1. **Is missingness informative — or is it just leaking the site?** Because
+1. **Is missingness informative - or is it just leaking the site?** Because
    ``ca``/``thal``/``slope`` are absent in whole cohorts, the missingness
    pattern nearly identifies the hospital, and the hospital determines
    prevalence. We show that (a) missingness indicators predict the *site* almost
    perfectly, (b) they look "predictive" of the outcome in a pooled split, and
-   (c) that signal collapses under leave-one-site-out — i.e. it was leakage, the
+   (c) that signal collapses under leave-one-site-out - i.e. it was leakage, the
    same trap as the ``dataset`` column in Phase 1.
 
 2. **Does a smarter imputer help?** We compare median imputation (baseline),
@@ -232,7 +232,7 @@ def main() -> None:
     leak = missingness_leakage(data)
     print(leak.to_string(index=False))
 
-    print("\n=== Q1d: indicator features — pooled (leaky) vs LOSO (honest) ===")
+    print("\n=== Q1d: indicator features - pooled (leaky) vs LOSO (honest) ===")
     eff = indicator_feature_effect(data)
     print(eff.to_string(index=False))
     eff.to_csv(os.path.join(REPORTS_DIR, "missingness_leakage.csv"), index=False)

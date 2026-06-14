@@ -1,9 +1,9 @@
-"""Phase 3b — Decision Curve Analysis and a clinical baseline.
+"""Phase 3b - Decision Curve Analysis and a clinical baseline.
 
 AUC and calibration still don't answer "is this model clinically *useful*?"
 Decision Curve Analysis (Vickers & Elkin, 2006) does: it computes **net
 benefit** across the range of threshold probabilities a clinician might act on,
-and compares the model to the two trivial policies — treat everyone and treat
+and compares the model to the two trivial policies - treat everyone and treat
 no one.
 
 We also pit the full ML model against a deliberately simple **clinical risk
@@ -16,9 +16,9 @@ dataset lacks, and Switzerland has no usable cholesterol). It is an honest
 
 Outputs
 -------
-* ``reports/decision_curve.csv`` — net benefit by threshold.
-* ``reports/clinical_baseline.csv`` — AUC of full model vs proxy + DeLong test.
-* ``reports/figures/decision_curve.png`` — net benefit curves.
+* ``reports/decision_curve.csv`` - net benefit by threshold.
+* ``reports/clinical_baseline.csv`` - AUC of full model vs proxy + DeLong test.
+* ``reports/figures/decision_curve.png`` - net benefit curves.
 """
 from __future__ import annotations
 

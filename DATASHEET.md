@@ -1,4 +1,4 @@
-# Datasheet — UCI Heart Disease (4-cohort aggregate)
+# Datasheet - UCI Heart Disease (4-cohort aggregate)
 
 Following Gebru et al., *Datasheets for Datasets* (2021).
 
@@ -12,22 +12,22 @@ Following Gebru et al., *Datasheets for Datasets* (2021).
 ## Composition
 - **Instances:** 920 patients, each a single clinical encounter, from **four
   hospital cohorts** pooled together (`dataset` column).
-- **Label:** `num` (0–4 angiographic disease severity); used as binary `num > 0`.
-  Pooled prevalence 55.3%; per-cohort 36.2%–93.5%.
+- **Label:** `num` (0-4 angiographic disease severity); used as binary `num > 0`.
+  Pooled prevalence 55.3%; per-cohort 36.2%-93.5%.
 - **Features (13):** age, sex, chest-pain type (cp), resting BP (trestbps),
   cholesterol (chol), fasting blood sugar (fbs), resting ECG (restecg), max heart
   rate (thalch), exercise angina (exang), ST depression (oldpeak), ST slope
   (slope), number of major vessels (ca), thalassemia (thal).
 - **Missingness is structured and cohort-dependent:** `ca`/`thal`/`slope` are
-  ~90–99% missing outside Cleveland; Switzerland has 61% `fbs` missing.
+  ~90-99% missing outside Cleveland; Switzerland has 61% `fbs` missing.
 
 ## Known data-quality issues
-- **`chol == 0`** is physiologically impossible — it encodes *missing* serum
+- **`chol == 0`** is physiologically impossible - it encodes *missing* serum
   cholesterol. It is the entire Switzerland cohort (123/123) plus 49 VA patients.
   This project recodes it to NaN in `src/data.py`.
 - **Class imbalance varies wildly by site** (label shift); Switzerland has only
   8 negative cases.
-- **Demographic skew:** 79% male overall; high-prevalence cohorts are 92–97%
+- **Demographic skew:** 79% male overall; high-prevalence cohorts are 92-97%
   male, limiting subgroup power for women.
 
 ## Collection process

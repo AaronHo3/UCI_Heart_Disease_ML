@@ -96,7 +96,7 @@ def load_cohort_data(
 
 
 def cohort_profile(data: CohortData) -> pd.DataFrame:
-    """Per-site size, positive count, and prevalence — the shift table."""
+    """Per-site size, positive count, and prevalence - the shift table."""
     frame = pd.DataFrame({"site": data.site, "y": data.y})
     grouped = frame.groupby("site")["y"]
     profile = pd.DataFrame(

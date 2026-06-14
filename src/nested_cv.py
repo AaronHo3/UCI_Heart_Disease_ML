@@ -1,4 +1,4 @@
-"""Phase 2 — Nested cross-validation, bootstrap CIs, and DeLong tests.
+"""Phase 2 - Nested cross-validation, bootstrap CIs, and DeLong tests.
 
 Three things every defensible model-comparison needs, which the original
 single-CV pipeline lacked:
@@ -7,16 +7,16 @@ single-CV pipeline lacked:
    reported score. The optimism is quantified by also reporting the naive
    "tune-and-report-on-the-same-folds" estimate.
 2. **Bootstrap 95% CIs** on every headline metric (AUC, accuracy, F1,
-   sensitivity, specificity) — no naked point estimates.
+   sensitivity, specificity) - no naked point estimates.
 3. **DeLong's test** for whether AUC differences between models are real. On
    this dataset they are expected to be statistically indistinguishable, and
    reporting that honestly is the point.
 
 Outputs
 -------
-* ``reports/nested_cv_results.csv`` — metric ± CI per model.
-* ``reports/delong_pairwise.csv`` — pairwise AUC tests.
-* ``reports/figures/nested_vs_naive_auc.png`` — the optimism-bias exhibit.
+* ``reports/nested_cv_results.csv`` - metric ± CI per model.
+* ``reports/delong_pairwise.csv`` - pairwise AUC tests.
+* ``reports/figures/nested_vs_naive_auc.png`` - the optimism-bias exhibit.
 
 The narrative summary lives in the single consolidated ``reports/FINDINGS.md``.
 """

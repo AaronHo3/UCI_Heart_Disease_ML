@@ -1,4 +1,4 @@
-"""Phase 4 — Interpretability with clinical face validity.
+"""Phase 4 - Interpretability with clinical face validity.
 
 A clinical model is only trustworthy if its learned effects agree with
 established cardiology (and the disagreements are interpretable). This module:
@@ -148,7 +148,7 @@ def partial_dependence_plot(X_tr, y_tr) -> str:
     # Well-populated continuous features with genuine marginal structure.
     # Heavily-missing features (thalch, chol, ca) have ~flat marginal PD because
     # most rows are imputed, so SHAP (which attributes per-row) is the right lens
-    # for them — see shap_summary.png.
+    # for them - see shap_summary.png.
     features = ["oldpeak", "age", "trestbps"]
     fig, ax = plt.subplots(figsize=(13, 4.5))
     PartialDependenceDisplay.from_estimator(pipe, X_tr, features, ax=ax, n_cols=3)
