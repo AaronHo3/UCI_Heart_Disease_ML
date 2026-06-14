@@ -1,0 +1,4 @@
+model,naive_auc,auc,auc_lo,auc_hi,accuracy,accuracy_lo,accuracy_hi,f1,f1_lo,f1_hi,sensitivity,sensitivity_lo,sensitivity_hi,specificity,specificity_lo,specificity_hi,optimism_bias
+Logistic Regression,0.8828,0.8804,0.8582,0.9018,0.8033,0.7772,0.8272,0.8231,0.7959,0.8459,0.8271,0.7931,0.8583,0.7737,0.7304,0.8134,0.0024
+Random Forest,0.884,0.8753,0.8521,0.8966,0.7989,0.7717,0.8239,0.8213,0.7949,0.845,0.835,0.8027,0.8664,0.7543,0.712,0.7945,0.0087
+Gradient Boosting,0.8863,0.8801,0.8578,0.9011,0.8033,0.7761,0.8272,0.8258,0.8,0.8482,0.8428,0.8099,0.8735,0.7543,0.7115,0.7914,0.0062

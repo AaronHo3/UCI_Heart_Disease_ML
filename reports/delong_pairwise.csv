@@ -1,0 +1,4 @@
+model_a,model_b,auc_a,auc_b,auc_diff,z,p_value,verdict
+Logistic Regression,Random Forest,0.8804,0.8753,0.0051,0.931,0.3518,indistinguishable
+Logistic Regression,Gradient Boosting,0.8804,0.8801,0.0003,0.048,0.9613,indistinguishable
+Random Forest,Gradient Boosting,0.8753,0.8801,-0.0048,-0.971,0.3314,indistinguishable

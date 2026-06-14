@@ -25,3 +25,6 @@ compare:
 
 loso:
 	. .venv/bin/activate && python src/loso_validation.py
+
+nested:
+	. .venv/bin/activate && python src/nested_cv.py
