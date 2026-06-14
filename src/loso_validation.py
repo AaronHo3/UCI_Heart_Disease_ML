@@ -45,7 +45,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.pipeline import Pipeline
 
 from data import CohortData, cohort_profile, load_cohort_data
-from metrics import Estimate, SiteReport, bootstrap_auc, summarize
+from metrics import Estimate, bootstrap_auc, summarize
 from pipeline_utils import (
     RANDOM_SEED,
     build_hgb_pipeline,

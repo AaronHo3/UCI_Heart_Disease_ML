@@ -62,7 +62,6 @@ def prediction_sets(proba: np.ndarray, q_hat: float) -> np.ndarray:
 
 def _set_size_breakdown(sets: np.ndarray) -> dict[str, float]:
     sizes = sets.sum(axis=1)
-    n = len(sizes)
     return {
         "mean_set_size": round(float(sizes.mean()), 3),
         "pct_singleton": round(float((sizes == 1).mean()), 3),
