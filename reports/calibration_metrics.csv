@@ -1,0 +1,10 @@
+model,method,brier,ece
+Logistic Regression,uncalibrated,0.1297,0.0522
+Logistic Regression,sigmoid,0.1312,0.0663
+Logistic Regression,isotonic,0.137,0.1006
+Random Forest,uncalibrated,0.1272,0.0647
+Random Forest,sigmoid,0.1292,0.1014
+Random Forest,isotonic,0.1303,0.0967
+Gradient Boosting,uncalibrated,0.1469,0.1056
+Gradient Boosting,sigmoid,0.1353,0.0668
+Gradient Boosting,isotonic,0.1351,0.0423

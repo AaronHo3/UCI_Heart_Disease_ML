@@ -28,3 +28,9 @@ loso:
 
 nested:
 	. .venv/bin/activate && python src/nested_cv.py
+
+calibrate:
+	. .venv/bin/activate && python src/calibration_analysis.py
+
+dca:
+	. .venv/bin/activate && python src/decision_curve.py

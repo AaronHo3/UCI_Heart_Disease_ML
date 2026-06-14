@@ -8,6 +8,7 @@ bootstrap confidence intervals (`n_boot = 2000`) unless noted.
 |---|---|---|
 | 1 | Leave-one-site-out external validation | `make loso` |
 | 2 | Nested CV, bootstrap CIs, DeLong tests | `make nested` |
+| 3 | Calibration, decision curves, clinical baseline | `make calibrate` / `make dca` |
 
 ---
 
@@ -121,3 +122,52 @@ On this well-trodden dataset the three model families are statistically
 indistinguishable by AUC. Combined with Phase 1 (logistic regression transfers
 best and is the most interpretable), model choice should be driven by
 calibration, robustness, and interpretability — not a non-significant AUC gap.
+
+---
+
+## Phase 3 — Calibration, decision curves, and a clinical baseline
+
+Evaluated on a held-out 20% test split (seed 100); the test set is never used
+for fitting or recalibration.
+
+### Calibration — does "0.8" mean an 80% chance of disease?
+
+In-distribution (pooled) calibration, Brier / ECE by recalibration method:
+
+| Model | Uncalibrated (Brier/ECE) | Sigmoid | Isotonic |
+|---|---|---|---|
+| Logistic Regression | 0.130 / 0.052 | 0.131 / 0.066 | 0.137 / 0.101 |
+| Random Forest | 0.127 / 0.065 | 0.129 / 0.101 | 0.130 / 0.097 |
+| Gradient Boosting | 0.147 / **0.106** | 0.135 / 0.067 | 0.135 / **0.042** |
+
+Logistic regression is well-calibrated out of the box; recalibrating it only
+adds noise. Gradient Boosting is the worst calibrated but **isotonic
+recalibration more than halves its ECE** (0.106 → 0.042). → `figures/calibration_reliability.png`
+
+Note this is the *in-distribution* picture. Phase 1 showed calibration breaks
+badly *across sites* (ECE up to 0.30) — a harder problem that simple
+recalibration on the source sites cannot fix because it is label shift, not
+just miscalibration.
+
+### Decision Curve Analysis — is the model clinically useful?
+
+Across the clinically relevant threshold range both the full model and the
+clinical proxy yield **higher net benefit than treat-all and treat-none**, so
+acting on the model beats the trivial policies. → `figures/decision_curve.png`
+
+### Standard-of-care baseline — does complexity actually help?
+
+A deliberately simple **clinical risk proxy** (logistic regression on 7
+routinely-available history/exercise variables: age, sex, cp, trestbps, thalch,
+exang, oldpeak) vs the full 13-feature Gradient Boosting model:
+
+| Model | # features | AUC [95% CI] |
+|---|---:|---|
+| Full ML (GB, all features) | 13 | 0.874 [0.822, 0.922] |
+| Clinical proxy (LogReg, routine features) | 7 | 0.881 [0.831, 0.924] |
+
+DeLong: Δ = −0.007, **p = 0.68 → indistinguishable**. The complex model does
+**not** beat a simple, deployable clinical baseline. (This proxy is *not* a
+validated score like Framingham/ASCVD — those require HDL, smoking,
+BP-treatment and diabetes data this dataset lacks — it is an honest
+"is the complexity worth it?" comparator.)
