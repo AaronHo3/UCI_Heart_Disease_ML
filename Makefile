@@ -46,3 +46,11 @@ fairness:
 
 conformal:
 	. .venv/bin/activate && python src/conformal.py
+
+manifest:
+	. .venv/bin/activate && python src/manifest.py
+
+test:
+	. .venv/bin/activate && pytest -q
+
+study: loso nested calibrate dca interpret missingness fairness conformal manifest

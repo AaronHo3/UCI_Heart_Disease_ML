@@ -1,140 +1,108 @@
-# Heart Disease Classification (Logistic Regression + Random Forest + Gradient Boosting)
+# Does Heart-Disease Prediction Transfer Across Hospitals?
 
 **NOTICE:** This project is meant purely for learning and discovery.
 
-A reproducible machine learning pipeline for predicting heart disease from clinical features using logistic regression, random forest, and gradient boosting models.
+A clinical machine-learning **methodology** study on the UCI Heart Disease
+dataset. The dataset is famous and the prediction is easy, so this project does
+not try to win on AUC. Instead it asks the questions that decide whether a
+clinical model is trustworthy: **does it generalize to a new hospital, are its
+probabilities calibrated, is it fair, and can it quantify its own uncertainty?**
+Every result is reported with a confidence interval and, where comparative, a
+statistical test.
 
-This project demonstrates an end-to-end ML workflow including preprocessing, cross-validation, model comparison, evaluation, interpretability, and reproducibility practices.
-
----
-
-## Overview
-
-The goal is to predict whether a patient has heart disease (`num > 0`) using demographic, clinical, and diagnostic features from the UCI Heart Disease dataset.
-
-Each model uses a scikit-learn pipeline combining:
-
-- imputation (missing values)
-- scaling (numeric features)
-- one-hot encoding (categorical features)
-- logistic regression, random forest, or gradient boosting classifier
-- hyperparameter tuning (CV search on ROC-AUC)
-- threshold tuning on a validation split (optimize F1 instead of fixed 0.5)
+> 📄 **[REPORT.md](REPORT.md)** — the full mini-paper · 📊 **[reports/FINDINGS.md](reports/FINDINGS.md)** — all numbers with CIs · 🧾 **[Model Card](MODEL_CARD.md)** · **[Datasheet](DATASHEET.md)**
 
 ---
+
+## The headline result
+
+The four hospital cohorts (Cleveland, Hungary, Switzerland, VA Long Beach) differ
+in outcome prevalence (36% → 93%), demographics, and even which features were
+recorded. So the standard pooled cross-validation number is optimistic. Holding
+out an **entire hospital** (leave-one-site-out) reveals the real transfer:
+
+| Model | Pooled-CV AUC | **LOSO AUC** | Generalization gap |
+|---|---:|---:|---:|
+| Logistic Regression | 0.879 | **0.821** | −0.058 |
+| Random Forest | 0.876 | **0.801** | −0.075 |
+| Gradient Boosting | 0.866 | **0.785** | −0.081 |
+
+![Generalization gap](reports/figures/loso_gap.png)
+
+And probability **calibration collapses** across sites — the model exports its
+~50% training prevalence regardless of a hospital's true rate:
+
+![Calibration drift](reports/figures/loso_calibration_drift.png)
+
+## What else the study finds (all in [FINDINGS.md](reports/FINDINGS.md))
+
+- **The models are statistically tied.** Nested-CV AUCs ≈ 0.88; all pairwise
+  DeLong tests p > 0.33. Chasing the "best" model is chasing noise.
+- **Complexity doesn't pay.** A 7-feature clinical baseline (AUC 0.881) is
+  indistinguishable from the full 13-feature model (0.874), DeLong p = 0.68 — and
+  both beat treat-all/treat-none on decision-curve net benefit.
+- **The model is clinically sensible.** 8/8 key features (ST depression, vessels,
+  exercise angina, max heart rate, …) are learned in the cardiologically correct
+  direction (SHAP + signed coefficients).
+- **Missingness is a leak, not a signal.** It predicts the *site* at 85.5% but is
+  pure chance (AUC 0.50) within a single complete cohort.
+- **A fairness gap hides behind equal AUC.** At a 0.5 threshold the model misses
+  women's disease 2.4× as often as men's (FNR 0.36 vs 0.15).
+- **Honest uncertainty.** Split-conformal prediction hits its target coverage
+  (0.91 at 90%) and abstains on ~27% of patients.
+
+## What this demonstrates
+
+External validation · nested cross-validation · bootstrap confidence intervals ·
+DeLong significance testing · probability calibration & recalibration ·
+decision-curve analysis · standard-of-care baselining · SHAP interpretability with
+clinical cross-checks · informative-missingness leakage analysis · subgroup
+fairness auditing · conformal prediction · reproducible pipelines, unit tests, and
+CI. The guiding principle throughout is **honest reporting over impressive
+numbers**.
 
 ## Dataset
 
-This project uses the **Heart Disease Dataset** available on Kaggle:
-
-https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data
-
-The dataset aggregates several heart disease cohorts (Cleveland, Hungary, Switzerland, and others) originally published in the UCI Machine Learning Repository:
-
-Dua, D. and Graff, C. (2019). *UCI Machine Learning Repository*. University of California, Irvine, School of Information and Computer Sciences.  
-https://archive.ics.uci.edu/ml/datasets/Heart+Disease
-
-The dataset is downloaded programmatically using `kagglehub` and is not stored in this repository.
-
-## Results
-
-After removing dataset-origin features to avoid cohort bias, all three models perform strongly:
-
-- **Logistic Regression**
-  - Test ROC-AUC: 0.899
-  - Accuracy (tuned threshold): 0.777
-  - F1 (tuned threshold): 0.821
-  - 5-fold CV ROC-AUC (best search): 0.888
-  - Tuned threshold: 0.29
-- **Random Forest**
-  - Test ROC-AUC: 0.918
-  - Accuracy (tuned threshold): 0.799
-  - F1 (tuned threshold): 0.836
-  - 5-fold CV ROC-AUC (best search): 0.887
-  - Tuned threshold: 0.38
-- **Gradient Boosting (HistGradientBoostingClassifier)**
-  - Test ROC-AUC: 0.914
-  - Accuracy (tuned threshold): 0.826
-  - F1 (tuned threshold): 0.852
-  - 5-fold CV ROC-AUC (best search): 0.881
-  - Tuned threshold: 0.46
-
-Model tradeoff summary:
-
-- **Random Forest** gives the best held-out ROC-AUC.
-- **Gradient Boosting** gives the best held-out Accuracy and F1.
-- **Logistic Regression** remains the most transparent baseline for interpretation.
-
-### Model Comparison Table
-
-| Model | ROC-AUC | Accuracy | Precision | Recall | F1 | Threshold |
-|---|---:|---:|---:|---:|---:|---:|
-| Random Forest | 0.9176 | 0.7989 | 0.7642 | 0.9216 | 0.8356 | 0.38 |
-| Gradient Boosting | 0.9144 | 0.8261 | 0.8070 | 0.9020 | 0.8519 | 0.46 |
-| Logistic Regression | 0.8985 | 0.7772 | 0.7402 | 0.9216 | 0.8210 | 0.29 |
-
-### ROC Curves (All Models)
-![ROC](reports/figures/roc_curve_all_models.png)
-
-### Confusion Matrices
-#### Logistic Regression
-![Confusion Matrix - Logistic Regression](reports/figures/confusion_matrix_logreg.png)
-#### Random Forest
-![Confusion Matrix - Random Forest](reports/figures/confusion_matrix_rf.png)
-#### Gradient Boosting
-![Confusion Matrix - Gradient Boosting](reports/figures/confusion_matrix_gb.png)
-
-### Feature Importance (Logistic Regression Coefficients)
-![Feature Importance](reports/figures/feature_importance.png)
-
-Key predictors include:
-
-- asymptomatic chest pain
-- number of blocked vessels (`ca`)
-- ST depression during exercise (`oldpeak`)
-- exercise-induced angina
-- abnormal perfusion test results
-- male sex
-
-These align with established cardiology risk factors.
-
-## What This Demonstrates
-
-- Comparing distinct model families: linear model (logistic regression), bagging (random forest), and boosting (hist gradient boosting).
-- Using cross-validated hyperparameter search rather than default settings.
-- Tuning decision thresholds for business/clinical objectives (F1) instead of relying on 0.5.
-- Evaluating tradeoffs across ROC-AUC, Accuracy, Precision, Recall, and F1.
-
----
+UCI Heart Disease (n = 920), aggregated from four hospitals and distributed via
+[Kaggle](https://www.kaggle.com/datasets/redwankarimsony/heart-disease-data) /
+the [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Heart+Disease).
+The CSV is committed under `data/raw/` for reproducibility; see the
+[Datasheet](DATASHEET.md) for provenance and known artifacts. Citation in
+[CITATION.md](CITATION.md).
 
 ## Reproducibility
 
-The project is fully reproducible using a fixed random seed, stratified splits, and a scikit-learn preprocessing pipeline.
-
-### Quick start
+Seed `100` throughout. Every figure and number is traceable via
+`reports/run_manifest.json` (git commit + library versions + artifact hashes).
 
 ```bash
-make setup
-make download
-make train       # trains logistic regression -> models/logreg.joblib
-make train_rf    # trains random forest -> models/rf.joblib
-make train_gb    # trains gradient boosting -> models/gb.joblib
-make eval
-make importance  # logistic regression feature importance
-make compare     # writes reports/model_comparison.csv
+make setup        # create .venv and install requirements
+make download     # fetch the dataset (or use the committed CSV)
+make study        # run all analyses + write the provenance manifest
+make test         # 27 unit/smoke tests (also run in CI)
 ```
 
-### Main outputs
+Individual analyses: `make loso nested calibrate dca interpret missingness fairness conformal`.
 
-- `models/logreg.joblib`
-- `models/rf.joblib`
-- `models/gb.joblib`
-- `reports/model_comparison.csv`
-- `reports/figures/roc_curve_all_models.png`
-- `reports/figures/roc_curve_logreg.png`
-- `reports/figures/roc_curve_rf.png`
-- `reports/figures/roc_curve_gb.png`
-- `reports/figures/confusion_matrix_logreg.png`
-- `reports/figures/confusion_matrix_rf.png`
-- `reports/figures/confusion_matrix_gb.png`
-- `reports/figures/feature_importance.png`
+## Repository layout
+
+```
+src/
+  data.py              cohort-aware loader (site as grouping var; chol=0 -> NaN)
+  pipeline_utils.py    sklearn pipelines + model builders
+  metrics.py  stats.py bootstrap CIs, ECE/Brier, DeLong test
+  loso_validation.py   Phase 1 — leave-one-site-out external validation
+  nested_cv.py         Phase 2 — nested CV, bootstrap CIs, DeLong
+  calibration_analysis.py / decision_curve.py   Phase 3 — calibration + DCA
+  interpretability.py  Phase 4 — SHAP + clinical cross-check
+  missingness.py       Phase 5 — missingness leakage + imputation sensitivity
+  fairness.py          Phase 7 — subgroup audit (sex, age)
+  conformal.py         Phase 6 — split-conformal prediction
+  manifest.py          reproducibility manifest
+tests/                 unit + smoke tests (CI: .github/workflows/ci.yml)
+reports/               FINDINGS.md, CSVs, figures, run_manifest.json
+REPORT.md MODEL_CARD.md DATASHEET.md
+```
+
+> ⚠️ Research/education only — not a medical device. See the
+> [Model Card](MODEL_CARD.md) for intended use and limitations.

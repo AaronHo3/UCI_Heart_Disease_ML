@@ -1,0 +1,69 @@
+{
+  "generated_utc": "2026-06-14T02:52:07+00:00",
+  "git_commit": "ae7e6d77300d7e1e6c4c8600935e5e2567876eb1",
+  "git_dirty": true,
+  "random_seed": 100,
+  "package_versions": {
+    "numpy": "2.4.2",
+    "pandas": "3.0.1",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.1",
+    "matplotlib": "3.10.8",
+    "shap": "0.52.0"
+  },
+  "analyses": {
+    "phase1_loso": "make loso",
+    "phase2_nested_cv": "make nested",
+    "phase3_calibration": "make calibrate",
+    "phase3_decision_curve": "make dca",
+    "phase4_interpretability": "make interpret",
+    "phase5_missingness": "make missingness",
+    "phase6_conformal": "make conformal",
+    "phase7_fairness": "make fairness"
+  },
+  "artifacts": {
+    "csv": {
+      "reports/calibration_metrics.csv": "b4e2b33e17c4685e",
+      "reports/clinical_baseline.csv": "58b07d323e644b19",
+      "reports/clinical_crosscheck.csv": "25e60028c985ceff",
+      "reports/conformal_coverage.csv": "6cba2d74ee7c22cf",
+      "reports/conformal_coverage_by_sex.csv": "292059a7c4adc7ef",
+      "reports/decision_curve.csv": "d8f1b65847dfb620",
+      "reports/delong_pairwise.csv": "aa37b0b92114de47",
+      "reports/fairness_subgroups.csv": "c4e129b7e248691c",
+      "reports/imputation_sensitivity.csv": "c1d1b223db2d53ab",
+      "reports/loso_results.csv": "b30182d5db5d5dfe",
+      "reports/missingness_leakage.csv": "210bdd0cf1bf6fa8",
+      "reports/missingness_predictiveness.csv": "26b7ee1c7c814303",
+      "reports/model_comparison.csv": "8e9974ebf984bb2d",
+      "reports/nested_cv_results.csv": "52665a0a15df12fe",
+      "reports/permutation_importance.csv": "b702132f1c502080"
+    },
+    "figures": {
+      "reports/figures/calibration_reliability.png": "885cb373bd7d3b60",
+      "reports/figures/conformal_coverage.png": "256b53f94136bf5f",
+      "reports/figures/confusion_matrix.png": "9fcbcbd3f4704993",
+      "reports/figures/confusion_matrix_gb.png": "b5c73308a6482d3f",
+      "reports/figures/confusion_matrix_logreg.png": "9fcbcbd3f4704993",
+      "reports/figures/confusion_matrix_rf.png": "a0020e86c6df186b",
+      "reports/figures/decision_curve.png": "f3896605e30a0fe4",
+      "reports/figures/fairness_by_age.png": "267cb67031d456c9",
+      "reports/figures/fairness_by_sex.png": "c83069ef6427e9b8",
+      "reports/figures/feature_importance.png": "4cbceb20e2c8cfae",
+      "reports/figures/imputation_sensitivity.png": "850eb81dd77ea613",
+      "reports/figures/loso_calibration_drift.png": "6380e8620d24500f",
+      "reports/figures/loso_gap.png": "868f4b55d3b3a7bd",
+      "reports/figures/loso_per_site.png": "a852f519d98d7016",
+      "reports/figures/nested_vs_naive_auc.png": "8b4c9a9fbd42d3a5",
+      "reports/figures/pdp.png": "84eaa66edf7c6728",
+      "reports/figures/permutation_importance.png": "b026c1841d4b0629",
+      "reports/figures/roc_curve.png": "628e09fe55af596f",
+      "reports/figures/roc_curve_all_models.png": "ac43c5d106a1e380",
+      "reports/figures/roc_curve_gb.png": "781639319c8e6953",
+      "reports/figures/roc_curve_logreg.png": "628e09fe55af596f",
+      "reports/figures/roc_curve_rf.png": "4b8156123f390982",
+      "reports/figures/shap_local.png": "ffc5eb511f7cd641",
+      "reports/figures/shap_summary.png": "b088e9db9d734131"
+    }
+  }
+}
