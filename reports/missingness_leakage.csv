@@ -1,0 +1,4 @@
+regime,without_indicators,with_indicators,delta
+pooled_cv,0.8789,0.9001,0.0213
+loso_pooled,0.8207,0.8637,0.043
+loso_per_site_mean,0.8021,0.8085,0.0064

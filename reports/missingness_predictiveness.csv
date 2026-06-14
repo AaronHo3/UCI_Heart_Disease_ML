@@ -1,0 +1,4 @@
+test,value,baseline
+predict site from missingness (accuracy),0.855,0.33
+"predict outcome from missingness only, POOLED (AUC)",0.747,0.5
+"predict outcome from missingness only, WITHIN Cleveland (AUC)",0.498,0.5

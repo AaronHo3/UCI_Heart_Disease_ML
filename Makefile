@@ -34,3 +34,6 @@ calibrate:
 
 dca:
 	. .venv/bin/activate && python src/decision_curve.py
+
+missingness:
+	. .venv/bin/activate && python src/missingness.py

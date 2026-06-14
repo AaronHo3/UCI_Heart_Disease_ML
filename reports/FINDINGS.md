@@ -9,6 +9,7 @@ bootstrap confidence intervals (`n_boot = 2000`) unless noted.
 | 1 | Leave-one-site-out external validation | `make loso` |
 | 2 | Nested CV, bootstrap CIs, DeLong tests | `make nested` |
 | 3 | Calibration, decision curves, clinical baseline | `make calibrate` / `make dca` |
+| 5 | Missing data: leakage + imputation sensitivity | `make missingness` |
 
 ---
 
@@ -171,3 +172,56 @@ DeLong: Δ = −0.007, **p = 0.68 → indistinguishable**. The complex model doe
 validated score like Framingham/ASCVD — those require HDL, smoking,
 BP-treatment and diabetes data this dataset lacks — it is an honest
 "is the complexity worth it?" comparator.)
+
+---
+
+## Phase 5 — Missing data done properly
+
+`chol == 0` (physiologically impossible — the entire Switzerland cohort plus
+part of VA) is recoded to NaN in `src/data.py` so it is handled honestly
+everywhere.
+
+### Is missingness informative, or is it leaking the site?
+
+`ca`/`thal`/`slope` are absent in whole cohorts, so the missingness *pattern*
+nearly identifies the hospital:
+
+| Test | Value | Baseline |
+|---|---:|---:|
+| Predict **site** from missingness indicators (accuracy) | **0.855** | 0.33 |
+| Predict outcome from missingness only — **pooled** (AUC) | 0.747 | 0.50 |
+| Predict outcome from missingness only — **within Cleveland** (AUC) | **0.498** | 0.50 |
+
+Missingness "predicts" disease at AUC 0.747 across the pooled data, but **0.498
+(pure chance) within the one complete cohort**. The apparent signal is entirely
+a site→prevalence proxy, not clinical information.
+
+### Adding missingness indicators as features — measured three ways
+
+| Evaluation | Without indicators | With indicators | Δ |
+|---|---:|---:|---:|
+| Pooled random-split CV | 0.879 | 0.900 | **+0.021** |
+| LOSO, pooled across sites | 0.821 | 0.864 | **+0.043** |
+| LOSO, **mean within-site** | 0.802 | 0.808 | **+0.006** |
+
+Indicators help only when the metric ranks patients *across* populations of
+different prevalence (pooled CV, and even pooled-LOSO). The honest **within-site**
+transfer is essentially unchanged (+0.006 ≈ noise). Two lessons: (1) missingness
+here is a prevalence proxy, not signal; (2) even "external validation" can leak
+prevalence if you pool across sites — per-site evaluation is the trustworthy one.
+
+### Does a smarter imputer help?
+
+Pooled CV (logistic regression), cholesterol and the rest imputed by:
+
+| Imputer | AUC | ECE |
+|---|---:|---:|
+| Median (baseline) | 0.879 | 0.029 |
+| MICE (IterativeImputer) | 0.886 | 0.033 |
+| KNN | 0.882 | 0.025 |
+| Gradient Boosting (native NaN handling) | 0.866 | 0.097 |
+
+Imputation strategy barely moves AUC (all within each other's bootstrap CI);
+MICE gives a tiny, non-significant bump. Fancy imputation cannot recover
+features that are 90–99% absent — consistent with the feature-support shift
+identified in Phase 1. → `figures/imputation_sensitivity.png`

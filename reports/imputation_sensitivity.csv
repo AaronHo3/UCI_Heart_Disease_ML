@@ -1,0 +1,5 @@
+model,imputer,auc,ece
+Logistic Regression,median,0.8789,0.0294
+Logistic Regression,mice,0.8858,0.0331
+Logistic Regression,knn,0.8825,0.0246
+Gradient Boosting,native (no impute),0.8656,0.0972
