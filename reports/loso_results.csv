@@ -1,0 +1,19 @@
+site,n,n_pos,prevalence,auc,auc_lo,auc_hi,brier,ece,model,regime
+POOLED-CV,920,509,0.5533,0.8789,0.8563,0.9,0.1379,0.0294,Logistic Regression,pooled_cv
+Cleveland,304,139,0.4572,0.8497,0.805,0.892,0.1853,0.1522,Logistic Regression,loso_site
+Hungary,293,106,0.3618,0.8946,0.8533,0.9327,0.1469,0.1412,Logistic Regression,loso_site
+Switzerland,123,115,0.935,0.7402,0.5058,0.9475,0.2005,0.3142,Logistic Regression,loso_site
+VA Long Beach,200,149,0.745,0.7239,0.6322,0.8077,0.1781,0.1158,Logistic Regression,loso_site
+LOSO-POOLED,920,509,0.5533,0.8207,0.7924,0.846,0.1735,0.0608,Logistic Regression,loso_pooled
+POOLED-CV,920,509,0.5533,0.8762,0.8528,0.898,0.1386,0.0362,Random Forest,pooled_cv
+Cleveland,304,139,0.4572,0.8381,0.7921,0.8801,0.1837,0.1374,Random Forest,loso_site
+Hungary,293,106,0.3618,0.8627,0.8165,0.9057,0.1696,0.1623,Random Forest,loso_site
+Switzerland,123,115,0.935,0.7745,0.5566,0.9565,0.1982,0.329,Random Forest,loso_site
+VA Long Beach,200,149,0.745,0.7025,0.6061,0.7877,0.1824,0.1484,Random Forest,loso_site
+LOSO-POOLED,920,509,0.5533,0.8014,0.771,0.828,0.1809,0.0434,Random Forest,loso_pooled
+POOLED-CV,920,509,0.5533,0.8656,0.8403,0.8882,0.152,0.0972,Gradient Boosting,pooled_cv
+Cleveland,304,139,0.4572,0.8114,0.7643,0.8575,0.202,0.1416,Gradient Boosting,loso_site
+Hungary,293,106,0.3618,0.8403,0.7934,0.8844,0.1841,0.1504,Gradient Boosting,loso_site
+Switzerland,123,115,0.935,0.7946,0.6119,0.9594,0.2097,0.2955,Gradient Boosting,loso_site
+VA Long Beach,200,149,0.745,0.664,0.5571,0.7588,0.2258,0.217,Gradient Boosting,loso_site
+LOSO-POOLED,920,509,0.5533,0.7848,0.7545,0.813,0.2025,0.1299,Gradient Boosting,loso_pooled

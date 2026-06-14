@@ -22,3 +22,6 @@ train_gb:
 
 compare:
 	. .venv/bin/activate && python src/compare_models.py
+
+loso:
+	. .venv/bin/activate && python src/loso_validation.py
