@@ -40,3 +40,6 @@ missingness:
 
 interpret:
 	. .venv/bin/activate && python src/interpretability.py
+
+fairness:
+	. .venv/bin/activate && python src/fairness.py

@@ -11,6 +11,7 @@ bootstrap confidence intervals (`n_boot = 2000`) unless noted.
 | 3 | Calibration, decision curves, clinical baseline | `make calibrate` / `make dca` |
 | 5 | Missing data: leakage + imputation sensitivity | `make missingness` |
 | 4 | Interpretability + clinical cross-check | `make interpret` |
+| 7 | Fairness / subgroup audit (sex, age) | `make fairness` |
 
 ---
 
@@ -270,3 +271,46 @@ clinically *wrong* direction — the model has face validity. (The marginal
 partial dependence of `thalch`/`chol`/`ca` is near-flat because they are heavily
 imputed; their effects show up in SHAP's per-row attributions rather than in a
 marginal PD curve — a deliberate PD-vs-SHAP distinction, not a bug.)
+
+---
+
+## Phase 7 — Fairness / subgroup audit
+
+Pooled-CV logistic regression, disaggregated by sex and age band. Subgroup
+sizes are reported because the data skews male (women are 21% of patients, and
+the high-prevalence cohorts are 92–97% male).
+
+### Equal AUC hides a large error-rate gap by sex
+
+| Group | n (pos) | Prevalence | AUC [95% CI] | FNR (missed) | FPR (false alarm) |
+|---|---:|---:|---|---:|---:|
+| Female | 194 (50) | 0.258 | 0.869 [0.807, 0.925] | **0.360** | 0.062 |
+| Male | 726 (459) | 0.632 | 0.855 [0.825, 0.883] | **0.148** | 0.330 |
+
+Discrimination is essentially equal, but at a single 0.5 threshold the model
+**misses disease in women 2.4× as often as in men** (FNR 0.36 vs 0.15), while
+over-flagging men. → `figures/fairness_by_sex.png`
+
+**Mechanism (not a coincidence):** women have much lower prevalence here (26% vs
+63%), so a threshold tuned to the ~55% pooled rate systematically under-calls
+the low-prevalence group — the same label-shift/calibration effect as Phases 1
+and 3, now surfacing as an equity harm. This mirrors the real-world concern that
+heart disease is under-diagnosed in women.
+
+### Age shows the same single-threshold artifact
+
+| Age | n | Prevalence | AUC [95% CI] | FNR | FPR |
+|---|---:|---:|---|---:|---:|
+| <50 | 292 | 0.380 | 0.897 [0.859, 0.931] | 0.306 | 0.127 |
+| 50–59 | 375 | 0.568 | 0.864 [0.825, 0.900] | 0.160 | 0.272 |
+| 60+ | 253 | 0.731 | 0.819 [0.754, 0.876] | 0.097 | 0.441 |
+
+FNR falls and FPR rises monotonically with age — again driven by rising
+prevalence against a fixed threshold (and AUC itself drifts down with age).
+
+### Proposed mitigation
+
+Use **group-aware / prevalence-adjusted operating thresholds** (or per-subgroup
+recalibration) instead of a single global 0.5, choosing the threshold to
+equalize a clinically chosen error rate (e.g. cap FNR) across sex and age. This
+is the actionable fix that the calibration work in Phase 3 already motivates.
