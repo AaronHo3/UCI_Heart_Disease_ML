@@ -37,3 +37,6 @@ dca:
 
 missingness:
 	. .venv/bin/activate && python src/missingness.py
+
+interpret:
+	. .venv/bin/activate && python src/interpretability.py

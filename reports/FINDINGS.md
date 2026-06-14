@@ -10,6 +10,7 @@ bootstrap confidence intervals (`n_boot = 2000`) unless noted.
 | 2 | Nested CV, bootstrap CIs, DeLong tests | `make nested` |
 | 3 | Calibration, decision curves, clinical baseline | `make calibrate` / `make dca` |
 | 5 | Missing data: leakage + imputation sensitivity | `make missingness` |
+| 4 | Interpretability + clinical cross-check | `make interpret` |
 
 ---
 
@@ -225,3 +226,47 @@ Imputation strategy barely moves AUC (all within each other's bootstrap CI);
 MICE gives a tiny, non-significant bump. Fancy imputation cannot recover
 features that are 90–99% absent — consistent with the feature-support shift
 identified in Phase 1. → `figures/imputation_sensitivity.png`
+
+---
+
+## Phase 4 — Interpretability with clinical face validity
+
+The Gradient Boosting model is explained with exact tree SHAP (global +
+per-patient), corroborated with permutation importance and partial dependence,
+and the *direction* of each effect is checked against known cardiology.
+
+### What drives the model
+
+Permutation importance (mean AUC drop on the held-out test, ±std over 30
+repeats) ranks **chest-pain type (cp) ≫ oldpeak > cholesterol > exang > sex**.
+SHAP agrees and adds direction:
+
+- `cp_asymptomatic` high → higher risk; `cp_atypical angina` → lower risk;
+- `oldpeak` (ST depression) high → higher risk;
+- `thalch` (max heart rate) high → **lower** risk (better exercise capacity);
+- `exang` (exercise angina) present → higher risk; `ca` more vessels → higher.
+
+→ `figures/shap_summary.png` (global), `figures/shap_local.png` (highest- and
+lowest-risk patient decompositions), `figures/permutation_importance.png`,
+`figures/pdp.png`.
+
+### Clinical cross-check — does the model agree with cardiology?
+
+Signed logistic-regression coefficients vs the established direction of effect:
+
+| Feature | Learned | Expected | Agrees? |
+|---|:--:|:--:|:--:|
+| oldpeak (ST depression) | + | + | ✅ |
+| ca (major vessels) | + | + | ✅ |
+| exang (exercise angina) | + | + | ✅ |
+| thalch (max heart rate) | − | − | ✅ |
+| age | + | + | ✅ |
+| sex = male | + | + | ✅ |
+| cp = asymptomatic | + | + | ✅ |
+| thal = reversible defect | + | + | ✅ |
+
+**8 / 8 features match cardiology priors.** Nothing is learned in the
+clinically *wrong* direction — the model has face validity. (The marginal
+partial dependence of `thalch`/`chol`/`ca` is near-flat because they are heavily
+imputed; their effects show up in SHAP's per-row attributions rather than in a
+marginal PD curve — a deliberate PD-vs-SHAP distinction, not a bug.)

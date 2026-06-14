@@ -1,0 +1,9 @@
+feature,logreg_coef,learned_direction,expected_direction,agrees,clinical_rationale
+oldpeak,0.524,+,+,True,ST depression on exercise -> ischemia
+ca,0.401,+,+,True,more major vessels affected -> more disease
+exang_True,0.401,+,+,True,exercise-induced angina -> more disease
+thalch,-0.334,-,-,True,higher max heart rate -> better exercise capacity
+age,0.277,+,+,True,older age -> more disease
+sex_Male,0.59,+,+,True,male sex -> higher CAD risk in this cohort
+cp_asymptomatic,1.113,+,+,True,asymptomatic presentation flags silent disease here
+thal_reversable defect,0.212,+,+,True,reversible perfusion defect -> ischemia
