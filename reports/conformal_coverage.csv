@@ -1,0 +1,3 @@
+alpha,target_coverage,mean_coverage,coverage_std,pct_splits_at_target,mean_set_size,pct_uncertain,pct_empty
+0.1,0.9,0.908,0.025,0.68,1.267,0.267,0.0
+0.2,0.8,0.802,0.033,0.57,1.01,0.025,0.014

@@ -43,3 +43,6 @@ interpret:
 
 fairness:
 	. .venv/bin/activate && python src/fairness.py
+
+conformal:
+	. .venv/bin/activate && python src/conformal.py

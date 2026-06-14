@@ -1,0 +1,5 @@
+alpha,group,target_coverage,mean_coverage
+0.1,Female,0.9,0.906
+0.1,Male,0.9,0.909
+0.2,Female,0.8,0.84
+0.2,Male,0.8,0.792

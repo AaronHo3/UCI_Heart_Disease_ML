@@ -12,6 +12,7 @@ bootstrap confidence intervals (`n_boot = 2000`) unless noted.
 | 5 | Missing data: leakage + imputation sensitivity | `make missingness` |
 | 4 | Interpretability + clinical cross-check | `make interpret` |
 | 7 | Fairness / subgroup audit (sex, age) | `make fairness` |
+| 6 | Conformal prediction (coverage-guaranteed) | `make conformal` |
 
 ---
 
@@ -314,3 +315,30 @@ Use **group-aware / prevalence-adjusted operating thresholds** (or per-subgroup
 recalibration) instead of a single global 0.5, choosing the threshold to
 equalize a clinically chosen error rate (e.g. cap FNR) across sex and age. This
 is the actionable fix that the calibration work in Phase 3 already motivates.
+
+---
+
+## Phase 6 — Conformal prediction (coverage-guaranteed uncertainty)
+
+Split-conformal prediction (LAC) wraps the logistic-regression model and returns
+a *prediction set* per patient — `{no disease}`, `{disease}`, or `{0,1}` (the
+model abstaining: "refer for more testing") — with a finite-sample guarantee
+that the true label is in the set with probability ≥ 1 − α. Coverage is a
+property *in expectation over the calibration/test split*, so it is verified by
+averaging 100 random splits (single-split coverage is noisy and uninformative).
+
+| α | Target | Mean empirical coverage | Mean set size | % `{0,1}` uncertain |
+|---|---:|---:|---:|---:|
+| 0.1 | 0.90 | **0.908 ± 0.025** | 1.27 | 27% |
+| 0.2 | 0.80 | **0.802 ± 0.033** | 1.01 | 2% |
+
+The guarantee holds. At 90% coverage the model returns an honest "uncertain"
+set for ~27% of patients — a clinically actionable deferral signal that a bare
+probability cannot express. → `figures/conformal_coverage.png`
+
+**Honest caveat (links to Phase 7):** split conformal guarantees *marginal*
+coverage, not *conditional*. Disaggregated by sex, coverage is close to target
+but not identical (e.g. at α=0.2, men 0.792 vs women 0.840) — a reminder that a
+marginal guarantee can still under-cover a subgroup, the uncertainty-side echo
+of the fairness gap. Group-conditional (Mondrian) conformal would restore
+per-group coverage.
