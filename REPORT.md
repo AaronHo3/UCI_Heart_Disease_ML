@@ -87,8 +87,10 @@ is largest for the most flexible model. `reports/figures/nested_vs_naive_auc.png
 
 **(5) Complexity does not beat a simple baseline.** A 7-feature clinical proxy
 (AUC 0.881 [0.83, 0.92]) is indistinguishable from the 13-feature GB model
-(0.874 [0.82, 0.92]), DeLong p = 0.68. Both beat treat-all/treat-none on net
-benefit. `reports/figures/decision_curve.png`
+(0.874 [0.82, 0.92]), DeLong p = 0.68. On net benefit both beat treat-none
+across the range, and both beat treat-all above a threshold of 0.14 (0.08 for
+the proxy); below that, treat-all is as good or better.
+`reports/figures/decision_curve.png`
 
 **(6) The model has clinical face validity.** 8/8 salient features
 (oldpeak, ca, exang, thalch, age, sex, cp, thal) are learned in the

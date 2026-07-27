@@ -155,9 +155,15 @@ just miscalibration.
 
 ### Decision Curve Analysis - is the model clinically useful?
 
-Across the clinically relevant threshold range both the full model and the
-clinical proxy yield **higher net benefit than treat-all and treat-none**, so
-acting on the model beats the trivial policies. -> `figures/decision_curve.png`
+Both the full model and the clinical proxy yield **higher net benefit than
+treat-none** across the range (the full model up to a threshold of 0.86). Against
+**treat-all** the picture is threshold-dependent: the full model overtakes
+treat-all from a threshold of 0.14 upward and the proxy from 0.08, while below
+those points treat-all is as good or better. That is the expected shape - at a
+very low threshold you are willing to work up almost everyone, so the trivial
+policy is hard to beat. In the range where a clinician would actually hesitate,
+acting on the model beats both trivial policies.
+-> `figures/decision_curve.png`
 
 ### Standard-of-care baseline - does complexity actually help?
 
