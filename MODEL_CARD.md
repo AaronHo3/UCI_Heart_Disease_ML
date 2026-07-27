@@ -34,8 +34,10 @@ artifacts for methodology demonstration, not medical devices.**
 - **Uncertainty:** split-conformal coverage and prediction-set size.
 
 ## Quantitative analysis (headline)
-- Pooled-CV AUC ~0.88; **leave-one-site-out AUC ~0.78-0.82** (the honest
-  estimate). Models are statistically indistinguishable (DeLong p > 0.33).
+- Pooled-CV AUC ~0.88; **mean AUC within a held-out hospital 0.78-0.80** (the
+  honest estimate; pooling all out-of-site predictions gives a milder 0.79-0.82
+  but rewards cross-cohort prevalence ranking). Models are statistically
+  indistinguishable (every pairwise DeLong p far above 0.05).
 - A 7-feature clinical proxy is indistinguishable from the full model (p = 0.68).
 - Full numbers with CIs: `reports/FINDINGS.md`. Narrative: `REPORT.md`.
 
@@ -45,8 +47,11 @@ artifacts for methodology demonstration, not medical devices.**
   thresholding. Mitigation: group-aware, prevalence-adjusted thresholds.
 - **Generalization:** performance degrades on unseen hospitals; calibration
   breaks under cross-site label shift.
-- **Data quality:** `chol == 0` is a missingness artifact (recoded); `ca`/`thal`/
-  `slope` are largely absent outside Cleveland.
+- **Data quality:** `chol == 0` is a missingness artifact (recoded); outside
+  Cleveland `ca` is 98% missing, `thal` 78%, and `slope` 50%.
+- **Reproducibility:** logistic-regression and gradient-boosting results
+  reproduce bit-exactly on the pinned versions; Random Forest drifts in the
+  third decimal across platforms.
 - **Uncertainty:** conformal guarantees marginal, not conditional, coverage.
 
 ## Recommendation

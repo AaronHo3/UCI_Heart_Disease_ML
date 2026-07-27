@@ -18,8 +18,11 @@ Following Gebru et al., *Datasheets for Datasets* (2021).
   cholesterol (chol), fasting blood sugar (fbs), resting ECG (restecg), max heart
   rate (thalch), exercise angina (exang), ST depression (oldpeak), ST slope
   (slope), number of major vessels (ca), thalassemia (thal).
-- **Missingness is structured and cohort-dependent:** `ca`/`thal`/`slope` are
-  ~90-99% missing outside Cleveland; Switzerland has 61% `fbs` missing.
+- **Missingness is structured and cohort-dependent:** outside Cleveland, `ca` is
+  98% missing, `thal` 78%, and `slope` 50%; Switzerland has 61% `fbs` missing.
+  Per cohort: Hungary `slope` 65% / `ca` 99% / `thal` 90%; VA `ca` 99% /
+  `thal` 83% / `slope` 51% and ~28% of vitals; Switzerland `ca` 96% /
+  `thal` 42% / `slope` 14%. Cleveland is essentially complete.
 
 ## Known data-quality issues
 - **`chol == 0`** is physiologically impossible - it encodes *missing* serum

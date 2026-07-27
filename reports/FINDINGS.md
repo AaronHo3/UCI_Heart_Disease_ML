@@ -31,7 +31,8 @@ distributions but in **outcome prevalence** and **feature availability**:
 - **Label shift** (dominant): prevalence spans 36%->93%.
 - **Covariate shift**: sex/age/vitals distributions differ by site.
 - **Feature-support shift**: `ca`/`thal`/`slope` (classically the most
-  predictive features) are ~90-99% missing outside Cleveland.
+  predictive features) are largely absent outside Cleveland - `ca` 98% missing,
+  `thal` 78%, `slope` 50%.
 
 ---
 
@@ -42,16 +43,27 @@ distributions but in **outcome prevalence** and **feature availability**:
 ### Result 1 - A real, consistent generalization gap
 
 Pooled random-split CV (what most portfolio projects report) is optimistic;
-holding out an entire hospital reveals the real drop:
+holding out an entire hospital reveals the real drop.
 
-| Model | Pooled-CV AUC | LOSO AUC | Gap |
-|---|---:|---:|---:|
-| Logistic Regression | 0.879 | 0.821 | **-0.058** |
-| Random Forest | 0.876 | 0.801 | **-0.075** |
-| Gradient Boosting | 0.866 | 0.785 | **-0.081** |
+LOSO admits two scorings. *Pooled* LOSO concatenates every out-of-site
+prediction into one AUC, which rewards ranking a high-prevalence cohort above a
+low-prevalence one - the exact prevalence-proxy effect Phase 5 isolates. *Mean
+within-site* AUC scores each held-out hospital on its own and averages, so
+cross-cohort ranking cannot help. The within-site column is the honest one:
+
+| Model | Pooled-CV AUC | LOSO (pooled) | LOSO (mean within-site) | Gap vs. within-site |
+|---|---:|---:|---:|---:|
+| Logistic Regression | 0.879 | 0.821 | **0.802** | **-0.077** |
+| Random Forest | 0.876 | 0.801 | **0.794** | **-0.082** |
+| Gradient Boosting | 0.866 | 0.785 | **0.778** | **-0.088** |
 
 The simplest model transfers best; flexible learners overfit site-specific
-structure. -> `figures/loso_gap.png`
+structure. -> `figures/loso_gap.png` (which plots the pooled variant)
+
+**Reproducibility.** Logistic-regression and gradient-boosting figures reproduce
+bit-exactly from a clean environment on the pinned versions; Random Forest
+drifts in the third decimal across platforms, so treat its digits as
+approximate.
 
 ### Result 2 - Per-site discrimination is uneven, sometimes unmeasurable
 
@@ -80,7 +92,8 @@ exports its ~50% training prevalence and cannot adapt. ECE rises to 0.30
 Re-adding the site indicator as a feature inflates pooled-CV AUC by **+0.025**
 (0.879 -> 0.904, logistic regression). A model that can see the site shortcuts to
 its base rate - direct evidence (not assertion) that the site column must stay
-out of the features.
+out of the features. This probe is printed by `make loso` and is the one headline
+figure with no committed CSV behind it; re-run the target to reproduce it.
 
 **Limitations:** Switzerland/VA have few negatives and heavy missingness - wide
 CIs, do not over-interpret. Part of the gap is feature-support shift
@@ -156,13 +169,14 @@ just miscalibration.
 ### Decision Curve Analysis - is the model clinically useful?
 
 Both the full model and the clinical proxy yield **higher net benefit than
-treat-none** across the range (the full model up to a threshold of 0.86). Against
-**treat-all** the picture is threshold-dependent: the full model overtakes
-treat-all from a threshold of 0.14 upward and the proxy from 0.08, while below
-those points treat-all is as good or better. That is the expected shape - at a
-very low threshold you are willing to work up almost everyone, so the trivial
-policy is hard to beat. In the range where a clinician would actually hesitate,
-acting on the model beats both trivial policies.
+treat-none** across the range (the full model up to a threshold of 0.86, turning
+negative at 0.87; the proxy throughout). Against **treat-all** the two behave
+differently: the full model sits at or below treat-all from 0.02 to 0.13 and
+overtakes it from 0.14 upward, while the **proxy beats treat-all almost
+everywhere**, dipping to parity only at 0.01 and 0.07. The full model's shape is
+the expected one - at a very low threshold you are willing to work up almost
+everyone, so the trivial policy is hard to beat. In the range where a clinician
+would actually hesitate, acting on either model beats both trivial policies.
 -> `figures/decision_curve.png`
 
 ### Standard-of-care baseline - does complexity actually help?
@@ -231,9 +245,10 @@ Pooled CV (logistic regression), cholesterol and the rest imputed by:
 | Gradient Boosting (native NaN handling) | 0.866 | 0.097 |
 
 Imputation strategy barely moves AUC (all within each other's bootstrap CI);
-MICE gives a tiny, non-significant bump. Fancy imputation cannot recover
-features that are 90-99% absent - consistent with the feature-support shift
-identified in Phase 1. -> `figures/imputation_sensitivity.png`
+MICE gives a tiny, non-significant bump. Fancy imputation cannot recover a
+feature like `ca` that is absent for 98% of the patients outside the one cohort
+that recorded it - consistent with the feature-support shift identified in
+Phase 1. -> `figures/imputation_sensitivity.png`
 
 ---
 
@@ -273,8 +288,13 @@ Signed logistic-regression coefficients vs the established direction of effect:
 | cp = asymptomatic | + | + | yes |
 | thal = reversible defect | + | + | yes |
 
-**8 / 8 features match cardiology priors.** Nothing is learned in the
-clinically *wrong* direction - the model has face validity. (The marginal
+**All 8 checked features match cardiology priors.** Nothing on this list is
+learned in the clinically *wrong* direction - the model has face validity on the
+effects cardiology can adjudicate. The list is pre-specified in `CLINICAL_PRIOR`
+and covers the features with an unambiguous expected sign, so it is a check on
+those 8 rather than a survey of all 13. `chol` is excluded on purpose: it is
+missing for all of Switzerland and 28% of VA, so its coefficient mostly reflects
+the imputed median and has no interpretable clinical direction. (The marginal
 partial dependence of `thalch`/`chol`/`ca` is near-flat because they are heavily
 imputed; their effects show up in SHAP's per-row attributions rather than in a
 marginal PD curve - a deliberate PD-vs-SHAP distinction, not a bug.)

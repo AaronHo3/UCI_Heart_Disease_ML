@@ -30,13 +30,32 @@ Each of the four cohorts is held out in turn and predicted by a model trained on
 the other three. Pooled random-split CV is the optimistic in-distribution
 number; leave-one-site-out (LOSO) is the honest one.
 
-| Model | Pooled-CV AUC | LOSO AUC | Gap |
-|---|---:|---:|---:|
-| Logistic Regression | 0.879 | **0.821** | -0.058 |
-| Random Forest | 0.876 | **0.801** | -0.075 |
-| Gradient Boosting | 0.866 | **0.785** | -0.081 |
+LOSO can be scored two ways, and they are not equivalent. *Pooled* LOSO throws
+every out-of-site prediction into one AUC, so it rewards a model for ranking a
+high-prevalence cohort above a low-prevalence one - the same prevalence-proxy
+effect that section 7 demonstrates for missingness indicators. The *mean
+within-site* AUC scores each held-out hospital separately and averages, so no
+cross-cohort ranking can help. It is the strictest and most honest number here,
+and it is the one to quote:
+
+| Model | Pooled-CV AUC | LOSO (pooled) | LOSO (mean within-site) | Gap vs. within-site |
+|---|---:|---:|---:|---:|
+| Logistic Regression | 0.879 | 0.821 | **0.802** | -0.077 |
+| Random Forest | 0.876 | 0.801 | **0.794** | -0.082 |
+| Gradient Boosting | 0.866 | 0.785 | **0.778** | -0.088 |
 
 ![Generalization gap](reports/figures/loso_gap.png)
+
+The within-site column is the mean of the four per-site AUCs in the next table;
+for logistic regression it is also reported directly as `loso_per_site_mean` in
+[missingness_leakage.csv](reports/missingness_leakage.csv). The figure plots the
+pooled-LOSO variant.
+
+> **Reproducibility note.** Logistic-regression and gradient-boosting numbers
+> reproduce bit-exactly from a clean environment on the pinned versions. Random
+> Forest drifts in the third decimal across platforms (these results were
+> generated on macOS), so read its digits as approximate and do not build a
+> threshold claim on them.
 
 Per-site held-out performance (gradient boosting) is uneven, and one site is a
 genuine failure:
@@ -60,7 +79,9 @@ site sits below the diagonal - the model exports its training prevalence.
 
 A leakage probe re-adds the `dataset` site indicator as a feature and inflates
 pooled-CV AUC by +0.025 (0.879 -> 0.904, logistic regression), which is why the
-site column is used only as a grouping variable and never as a feature.
+site column is used only as a grouping variable and never as a feature. This
+figure is printed by `make loso` rather than written to a CSV, so unlike every
+other number here it has no committed artifact; re-run the target to confirm it.
 
 ### 2. Nested CV and model comparison ([nested_cv_results.csv](reports/nested_cv_results.csv), [delong_pairwise.csv](reports/delong_pairwise.csv))
 
@@ -75,11 +96,17 @@ site column is used only as a grouping variable and never as a feature.
 
 All three pairwise DeLong tests are non-significant (p = 0.35, 0.96, 0.33), so
 the model families are statistically indistinguishable by AUC on this dataset.
+The two comparisons involving Random Forest move by about 0.015 in p across
+platforms, so the robust claim is that every pairwise p is well above 0.05, not
+that it clears any particular threshold near 0.33.
 
 ### 3. Calibration curves ([calibration_metrics.csv](reports/calibration_metrics.csv))
 
-Reliability diagrams (10 quantile bins) plus Brier and ECE on a held-out 20%
-test split that is never used for fitting or recalibration:
+Brier and ECE on a held-out 20% test split that is never used for fitting or
+recalibration. Note the two views use different binning: the reliability
+diagrams are drawn with 10 quantile bins (equal counts per bin), while the ECE
+figure is computed over 10 equal-width probability bins, which is the more
+common convention and the one in [src/metrics.py](src/metrics.py):
 
 | Model | Uncalibrated (Brier / ECE) | Platt / sigmoid | Isotonic |
 |---|---|---|---|
@@ -102,10 +129,13 @@ threshold probabilities 0.01 to 0.95, against treat-all and treat-none.
 
 ![Decision curve](reports/figures/decision_curve.png)
 
-The full model's net benefit exceeds treat-all from a threshold of 0.14 upward
-and stays above treat-none up to 0.86; below 0.14 treat-all is as good or
-better, which is expected when almost everyone should be worked up anyway. The
-7-feature proxy overtakes treat-all earlier, from 0.08.
+Both models stay above treat-none across effectively the whole range: the full
+model up to a threshold of 0.86 (it turns negative at 0.87) and the proxy
+throughout. Against treat-all the full model is the weaker of the two: it sits
+at or below treat-all from 0.02 to 0.13 and only overtakes it from 0.14 upward,
+which is expected at low thresholds where almost everyone should be worked up
+anyway. The 7-feature proxy beats treat-all almost everywhere, dipping to
+parity only at 0.01 and 0.07.
 
 The comparator is a deliberately simple **clinical proxy**: logistic regression
 on 7 routinely available variables (age, sex, chest-pain type, resting BP, max
@@ -177,7 +207,7 @@ prevalence-adjusted thresholds are discussed as the indicated fix in
 
 ### 7. Missing-data analysis ([missingness_leakage.csv](reports/missingness_leakage.csv), [imputation_sensitivity.csv](reports/imputation_sensitivity.csv))
 
-`ca`, `thal` and `slope` are 83-99% missing outside Cleveland, so the
+Outside Cleveland, `ca` is 98% missing, `thal` 78%, and `slope` 50%, so the
 missingness pattern nearly identifies the hospital, and the hospital determines
 prevalence:
 
@@ -194,7 +224,8 @@ external validation can leak prevalence if you pool across sites.
 
 Imputation choice barely matters (all within each other's CI): median 0.879,
 MICE 0.886, KNN 0.883, gradient boosting's native NaN handling 0.866. Fancy
-imputation cannot recover features that are 90-99% absent.
+imputation cannot recover a feature that is absent for 98% of the patients
+outside the one cohort that recorded it.
 
 ### 8. Interpretability and clinical cross-check ([permutation_importance.csv](reports/permutation_importance.csv), [clinical_crosscheck.csv](reports/clinical_crosscheck.csv))
 
@@ -206,9 +237,19 @@ angina (0.026) and sex (0.014).
 
 Signed logistic-regression coefficients are checked against the established
 direction of effect for 8 features (ST depression, vessels, exercise angina, max
-heart rate, age, male sex, asymptomatic chest pain, reversible defect). **8/8
-agree with cardiology priors**, so nothing is learned in the clinically wrong
-direction.
+heart rate, age, male sex, asymptomatic chest pain, reversible defect). **All 8
+agree with cardiology priors**, so none of them is learned in the clinically
+wrong direction.
+
+Two caveats keep this honest. The 8 features are a pre-specified list in
+`CLINICAL_PRIOR` ([src/interpretability.py](src/interpretability.py)), chosen
+because cardiology gives them an unambiguous expected sign; this is a check on
+those 8, not a survey of all 13 features. `chol` is deliberately not among them
+even though permutation importance ranks it third, because its direction is not
+interpretable here: cholesterol is missing for all of Switzerland and 28% of VA,
+so what the model sees is largely the imputed median. Note also that the
+direction check reads logistic-regression coefficients while the SHAP and
+permutation-importance panels above explain the gradient-boosting model.
 
 ---
 

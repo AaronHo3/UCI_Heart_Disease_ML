@@ -6,11 +6,11 @@ interesting part. This report reframes it as a *clinical machine-learning
 methodology* study: how well does a heart-disease classifier trained on some
 hospitals generalize to a hospital it has never seen, and is its output
 trustworthy enough to act on? The headline result is that pooled cross-validation
-(AUC ~0.88) substantially overstates real transfer (leave-one-site-out AUC ~
-0.78-0.82), that probability calibration breaks under cross-site label shift, and
-that a 7-feature clinical baseline is statistically indistinguishable from the
-full model. Every claim is reported with a confidence interval and, where
-comparative, a statistical test.
+(AUC ~0.88) substantially overstates real transfer (mean AUC within a held-out
+hospital 0.78-0.80), that probability calibration breaks under cross-site label
+shift, and that a 7-feature clinical baseline is statistically indistinguishable
+from the full model. Every claim is reported with a confidence interval and,
+where comparative, a statistical test.
 
 ---
 
@@ -69,9 +69,13 @@ analysis is one `make` target; provenance in `reports/run_manifest.json`.
 
 ## 4. Results
 
-**(1) The generalization gap is real.** Pooled CV -> LOSO AUC drops -0.058
-(LogReg), -0.075 (RF), -0.081 (GB). The simplest model transfers best.
-`reports/figures/loso_gap.png`
+**(1) The generalization gap is real.** Scored as the mean AUC *within* each
+held-out hospital, pooled CV -> LOSO drops -0.077 (LogReg, 0.879 -> 0.802),
+-0.082 (RF, 0.876 -> 0.794), and -0.088 (GB, 0.866 -> 0.778). Pooling all
+out-of-site predictions into one AUC gives a milder -0.058 / -0.075 / -0.081,
+but that variant rewards ranking a high-prevalence cohort above a low-prevalence
+one, which result (7) shows is a prevalence proxy rather than transfer. The
+simplest model transfers best either way. `reports/figures/loso_gap.png`
 
 **(2) Per-site failure is uneven.** VA Long Beach AUC collapses to 0.66
 [0.56, 0.76]; Switzerland is uninterpretable (8 negatives -> 0.79 [0.61, 0.96]).
@@ -82,19 +86,21 @@ analysis is one `make` target; provenance in `reports/run_manifest.json`.
 `reports/figures/loso_calibration_drift.png`
 
 **(4) The models are statistically indistinguishable.** Nested-CV AUCs 0.880 /
-0.875 / 0.880; all pairwise DeLong tests p > 0.33. Optimism bias (naive - nested)
-is largest for the most flexible model. `reports/figures/nested_vs_naive_auc.png`
+0.875 / 0.880; every pairwise DeLong p is far above 0.05 (0.35, 0.96, 0.33).
+Optimism bias (naive - nested) is largest for the most flexible model.
+`reports/figures/nested_vs_naive_auc.png`
 
 **(5) Complexity does not beat a simple baseline.** A 7-feature clinical proxy
 (AUC 0.881 [0.83, 0.92]) is indistinguishable from the 13-feature GB model
 (0.874 [0.82, 0.92]), DeLong p = 0.68. On net benefit both beat treat-none
-across the range, and both beat treat-all above a threshold of 0.14 (0.08 for
-the proxy); below that, treat-all is as good or better.
+across the range (the full model to a threshold of 0.86). Against treat-all the
+full model only wins from 0.14 upward, while the proxy wins almost everywhere.
 `reports/figures/decision_curve.png`
 
-**(6) The model has clinical face validity.** 8/8 salient features
-(oldpeak, ca, exang, thalch, age, sex, cp, thal) are learned in the
-cardiologically correct direction. `reports/figures/shap_summary.png`
+**(6) The model has clinical face validity.** All 8 features with an unambiguous
+expected sign (oldpeak, ca, exang, thalch, age, sex, cp, thal) are learned in the
+cardiologically correct direction. This is a check on a pre-specified list, not
+a survey of all 13 features. `reports/figures/shap_summary.png`
 
 **(7) Missingness is a site/prevalence proxy, not signal.** It predicts the
 *site* at 85.5% accuracy and "predicts" disease at AUC 0.747 pooled but 0.498
